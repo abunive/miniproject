@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase/firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import StudentProofUpload from "./StudentProofUpload";
 
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [events, setEvents] = useState([]);
   const [studentName, setStudentName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // 🔐 STUDENT AUTH CHECK
+  /* 🔐 AUTH CHECK */
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async user => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
       if (!user) {
         window.location.href = "/";
         return;
@@ -34,27 +37,49 @@ export default function StudentDashboard() {
 
     return () => unsubscribe();
   }, []);
+
+  /* 🔓 LOGOUT */
   const handleLogout = async () => {
-  try {
     await signOut(auth);
-    alert("Logged out successfully");
     window.location.href = "/";
-  } catch (error) {
-    alert("Logout failed: " + error.message);
-  }
-};
+  };
 
-
-  // 📥 LOAD EVENTS
+  /* 📥 LOAD EVENTS (FIXED) */
   const loadEvents = async () => {
-    const snap = await getDocs(collection(db, "Events"));
-    setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    setLoading(true);
+    setError("");
+
+    try {
+      const snap = await getDocs(collection(db, "Events"));
+
+      const formatted = snap.docs.map(d => {
+        const data = d.data();
+
+        let eventDate = "N/A";
+        if (data.date?.toDate) {
+          eventDate = data.date.toDate().toLocaleDateString();
+        } else if (typeof data.date === "string") {
+          eventDate = data.date;
+        }
+
+        return {
+          id: d.id,
+          ...data,
+          eventDate
+        };
+      });
+
+      setEvents(formatted);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load events");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (activeTab === "events") {
-      loadEvents();
-    }
+    if (activeTab === "events") loadEvents();
   }, [activeTab]);
 
   return (
@@ -64,26 +89,18 @@ export default function StudentDashboard() {
         <h3>Student Panel</h3>
         <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button onClick={() => setActiveTab("events")}>Events</button>
-        <div style={{ flex: 1 }}></div> {/* pushes logout to bottom */}
+        <button onClick={() => setActiveTab("proof")}>Upload Proof</button>
 
-  <button
-    onClick={handleLogout}
-    style={{
-      background: "#dc2626",
-      color: "white",
-      marginTop: 20,
-      padding: "10px",
-      borderRadius: 6,
-      fontWeight: "bold"
-    }}
-  >
-    🔓 Logout
-  </button>
+
+        <div style={{ flex: 1 }} />
+
+        <button onClick={handleLogout} style={logoutBtn}>
+          🔓 Logout
+        </button>
       </div>
 
       {/* CONTENT */}
       <div style={{ flex: 1, padding: 30 }}>
-        {/* DASHBOARD */}
         {activeTab === "dashboard" && (
           <>
             <h1>Student Dashboard</h1>
@@ -92,32 +109,40 @@ export default function StudentDashboard() {
           </>
         )}
 
-        {/* EVENTS */}
         {activeTab === "events" && (
           <>
-            <h2>Events</h2>
+            <h2>Approved Events</h2>
 
-            {events.length === 0 && <p>No events available</p>}
+            {loading && <p>Loading events...</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {events
-              .filter(e => e.status === "approved")
-              .map(e => (
-                <div key={e.id} style={card}>
-                  <h3>{e.title}</h3>
-                  <p><b>Date:</b> {e.date}</p>
-                  <p>{e.description}</p>
+            {!loading &&
+              events
+                .filter(e => e.status === "approved")
+                .map(e => (
+                  <div key={e.id} style={card}>
+                    <h3>{e.title}</h3>
+                    <p><b>Date:</b> {e.eventDate}</p>
+                    <p>{e.description}</p>
 
-                  {e.posterURL && (
-                    <img
-                      src={e.posterURL}
-                      alt="poster"
-                      style={{ width: "200px", marginTop: 10 }}
-                    />
-                  )}
-                </div>
-              ))}
+                    {e.posterURL && (
+                      <img
+                        src={e.posterURL}
+                        alt="poster"
+                        style={{ width: 200, marginTop: 10 }}
+                      />
+                    )}
+                  </div>
+                ))}
+
+            {!loading && events.filter(e => e.status === "approved").length === 0 && (
+              <p>No approved events available</p>
+            )}
           </>
         )}
+       {activeTab === "proof" && <StudentProofUpload user={auth.currentUser} />}
+
+
       </div>
     </div>
   );
@@ -139,4 +164,13 @@ const card = {
   padding: 15,
   marginBottom: 15,
   borderRadius: 8
+};
+
+const logoutBtn = {
+  background: "#dc2626",
+  color: "white",
+  padding: 10,
+  borderRadius: 6,
+  border: "none",
+  fontWeight: "bold"
 };

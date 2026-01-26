@@ -151,7 +151,7 @@ function AdminLogin() {
       
       const uid = res.user.uid;
       // 2️⃣ GET FROM users COLLECTION (FIXED)
-      const snap = await getDoc(doc(db, "Admin", uid));
+      const snap = await getDoc(doc(db, "Admin", email));
       console.log("Admin snapshot exists:", snap.exists());
       console.log("Admin data:", snap.data());
 
