@@ -123,3 +123,35 @@ hr {
   margin: 10px 0;
   border: 0.5px solid gray;
 }
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* space for eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;            /* ✅ remove border */
+  outline: none;           /* ✅ remove outline */
+  box-shadow: none;        /* ✅ remove focus ring */
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+/* ✅ remove border when clicked or focused */
+.toggle-password:focus,
+.toggle-password:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}

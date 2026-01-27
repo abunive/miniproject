@@ -103,17 +103,29 @@ export default function StudentProofUpload() {
     }
   };
 
+  const inputStyle = {
+    width: "100%",
+    padding: 10,
+    marginBottom: 12,
+    borderRadius: 6,
+    border: "1px solid #ccc"
+  };
+
   return (
-    <div>
-      <h2>Upload Activity Proof</h2>
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20, fontFamily: "Arial" }}>
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
+        Upload Activity Proof
+      </h2>
 
       <input
+        style={inputStyle}
         placeholder="Proof URL"
         value={proofURL}
         onChange={e => setProofURL(e.target.value)}
       />
 
       <select
+        style={inputStyle}
         value={form.category}
         onChange={e => setForm({ ...form, category: e.target.value })}
       >
@@ -127,6 +139,7 @@ export default function StudentProofUpload() {
 
       {form.category === "Other" && (
         <input
+          style={inputStyle}
           placeholder="Other Event Name"
           value={form.otherEvent}
           onChange={e => setForm({ ...form, otherEvent: e.target.value })}
@@ -134,13 +147,14 @@ export default function StudentProofUpload() {
       )}
 
       <input
+        style={inputStyle}
         type="date"
         value={form.date}
         onChange={e => setForm({ ...form, date: e.target.value })}
       />
 
-      {/* ✅ PURPOSE */}
       <select
+        style={inputStyle}
         value={form.purpose}
         onChange={e => setForm({ ...form, purpose: e.target.value })}
       >
@@ -150,32 +164,57 @@ export default function StudentProofUpload() {
       </select>
 
       <textarea
+        style={{ ...inputStyle, height: 80 }}
         placeholder="Description"
         value={form.description}
         onChange={e => setForm({ ...form, description: e.target.value })}
       />
 
-      <button onClick={submitProof}>
+      <button
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "#2563eb",
+          color: "#fff",
+          border: "none",
+          borderRadius: 6,
+          fontWeight: "bold",
+          cursor: "pointer",
+          marginTop: 10
+        }}
+        onClick={submitProof}
+      >
         {editId ? "Update Proof" : "Submit Proof"}
       </button>
 
-      <hr />
+      <hr style={{ margin: "30px 0" }} />
 
       <h3>My Proofs</h3>
+
       {myProofs.map(p => (
-        <div key={p.id} style={{ border: "1px solid #ccc", padding: 10 }}>
+        <div
+          key={p.id}
+          style={{
+            border: "1px solid #ddd",
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 15,
+            background: "#f9fafb"
+          }}
+        >
           <p>
             <b>{p.category}</b> | Purpose: <b>{p.purpose}</b>
           </p>
-          <p>{p.description}</p>
-          <p>Status: {p.status}</p>
 
-          {/* ✅ IMAGE PREVIEW */}
+          <p>{p.description}</p>
+          <p>Status: <b>{p.status}</b></p>
+
           {p.proofURL && (
             <img
               src={p.proofURL}
               alt="Proof"
               width="220"
+              style={{ marginTop: 8, borderRadius: 6 }}
               onError={e => (e.target.style.display = "none")}
             />
           )}
@@ -186,11 +225,12 @@ export default function StudentProofUpload() {
           </a>
 
           {p.status === "pending" && (
-            <>
-              <br />
-              <button onClick={() => handleEdit(p)}>Edit</button>
+            <div style={{ marginTop: 10 }}>
+              <button style={{ marginRight: 10 }} onClick={() => handleEdit(p)}>
+                Edit
+              </button>
               <button onClick={() => handleDelete(p.id)}>Delete</button>
-            </>
+            </div>
           )}
 
           {p.rejectReason && (

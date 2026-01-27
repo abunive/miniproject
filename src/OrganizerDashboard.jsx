@@ -351,4 +351,4 @@ const modal = {
   padding: 20,
   marginTop: 20,
   borderRadius: 10
-};
+};  

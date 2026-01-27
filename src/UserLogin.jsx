@@ -4,6 +4,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 import "./login.css";
 
 function UserLogin() {
@@ -71,13 +73,21 @@ const handleLogin = async () => {
             placeholder="Enter password"
           />
 
-          <button
+          {/* <button
             type="button"
             className="toggle-password"
             onClick={togglePassword}
           >
             {showPassword ? "Hide" : "Show"}
-          </button>
+          </button> */}
+          <button
+  type="button"
+  className="toggle-password"
+  onClick={togglePassword}
+>
+  {showPassword ? <FaEyeSlash /> : <FaEye />}
+</button>
+
         </div>
         <button className="login-btn" onClick={handleLogin}>
           Login

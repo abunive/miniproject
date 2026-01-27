@@ -1,135 +1,13 @@
-// import { useState } from "react";
-// import { signInWithEmailAndPassword } from "firebase/auth";
-// import { doc, getDoc } from "firebase/firestore";
-// import { auth, db } from "./firebase/firebase";
-// import { useNavigate } from "react-router-dom";
-// import "./login.css";
 
-// function AdminLogin() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleAdminLogin = async () => {
-//     try {
-//       const res = await signInWithEmailAndPassword(
-//         auth,
-//         email,
-//         password
-//       );
-//       console.log("data is ",res);
-//       const uid = res.user.uid;
-//       const snap = await getDoc(doc(db, "users", uid));
-
-//       if (snap.exists() && snap.data().role === "admin") {
-//         navigate("/admin-dashboard");
-//       } else {
-//         alert("Not authorized as admin");
-//       }
-//     } catch (err) {
-//       alert("Invalid email or password");
-//     }
-//   };
-
-//   return (
-//     <div className="login-page">
-//       <h1 className="title">KTU Admin Panel</h1>
-//       <h2 className="subtitle">Admin Login</h2>
-
-//       <div className="login-card">
-//         <label>Admin Email</label>
-//         <input
-//           type="email"
-//           placeholder="admin@ktu.ac.in"
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-
-//         <label>Password</label>
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-
-//         <button className="login-btn" onClick={handleAdminLogin}>
-//           Login as Admin
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default AdminLogin;
-
-
-
-// import { useState } from "react";
-// import { signInWithEmailAndPassword } from "firebase/auth";
-// import { auth } from "./firebase/firebase";
-// import { useNavigate } from "react-router-dom";
-// import "./login.css";
-
-// function AdminLogin() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleAdminLogin = async () => {
-//     try {
-//       const res = await signInWithEmailAndPassword(
-//         auth,
-//         email,
-//         password
-//       );
-//       console.log(res.user.email);
-//             console.log(res.user.password);
-//       // HARD-CODED admin email
-//       if (res.user.email === "admin1@geci.ac.in" ) {
-//         console.log("Successfull")
-//         navigate("/admin-dashboard");
-//       } else {
-//         alert("Not authorized as admin");
-//       }
-//     } catch (err) {
-//       alert("Invalid email or password");
-//     }
-//   };
-
-//   return (
-//     <div className="login-page">
-//       <h1 className="title">KTU Admin Panel</h1>
-//       <h2 className="subtitle">Admin Login</h2>
-
-//       <div className="login-card">
-//         <label>Admin Email</label>
-//         <input
-//           type="email"
-//           placeholder="admin@ktu.ac.in"
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-
-//         <label>Password</label>
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-
-//         <button className="login-btn" onClick={handleAdminLogin}>
-//           Login as Admin
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default AdminLogin;
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../src/firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 import "./login.css";
+
 
 function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -140,44 +18,78 @@ function AdminLogin() {
     setShowPassword(!showPassword);
   };
   const handleAdminLogin = async () => {
-    try {
-      // 1️⃣ Authenticate admin
-      const res = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+  try {
+    // 1️⃣ Firebase Auth
+    const res = await signInWithEmailAndPassword(auth, email, password);
+    const uid = res.user.uid;
+
+    // 2️⃣ Get admin data by UID (FIX)
+    const snap = await getDoc(doc(db, "Admin", uid));
+
+    if (!snap.exists()) {
+      alert("Admin not registered");
+      return;
+    }
+
+    if (!snap.data().isActive) {
+      alert("Admin account is deactivated");
+      return;
+    }
+
+    if (snap.data().role !== "admin") {
+      alert("Access denied. Admin only.");
+      return;
+    }
+
+    localStorage.setItem("role", "admin");
+    navigate("/admin-dashboard");
+
+  } catch (err) {
+    console.error(err.code, err.message);
+  alert(err.code);
+   
+  }
+};
+
+  // const handleAdminLogin = async () => {
+  //   try {
+  //     // 1️⃣ Authenticate admin
+  //     const res = await signInWithEmailAndPassword(
+  //       auth,
+  //       email,
+  //       password
+  //     );
 
       
-      const uid = res.user.uid;
-      // 2️⃣ GET FROM users COLLECTION (FIXED)
-      const snap = await getDoc(doc(db, "Admin", email));
-      console.log("Admin snapshot exists:", snap.exists());
-      console.log("Admin data:", snap.data());
+  //     const uid = res.user.uid;
+  //     // 2️⃣ GET FROM users COLLECTION (FIXED)
+  //     const snap = await getDoc(doc(db, "Admin", email));
+  //     console.log("Admin snapshot exists:", snap.exists());
+  //     console.log("Admin data:", snap.data());
 
-      if (!snap.exists()) {
-        alert("Admin not registered");
-        return;
-      }
+  //     if (!snap.exists()) {
+  //       alert("Admin not registered");
+  //       return;
+  //     }
 
-      if (!snap.data().isActive) {
-        alert("Admin account is deactivated");
-        return;
-      }
-        console.log(snap.data().role);
+  //     if (!snap.data().isActive) {
+  //       alert("Admin account is deactivated");
+  //       return;
+  //     }
+  //       console.log(snap.data().role);
         
-      if (snap.data().role !== "admin") {
-        alert("Access denied. Admin only.");
-        return;
-      }
-      localStorage.setItem("role", "admin");  
-      // 3️⃣ Success
-      navigate("/admin-dashboard");
+  //     if (snap.data().role !== "admin") {
+  //       alert("Access denied. Admin only.");
+  //       return;
+  //     }
+  //     localStorage.setItem("role", "admin");  
+  //     // 3️⃣ Success
+  //     navigate("/admin-dashboard");
 
-    } catch (err) {
-      alert("Invalid email or password");
-    }
-  };
+  //   } catch (err) {
+  //     alert("Invalid email or password");
+  //   }
+  // };
 
   return (
     <div className="login-page">
@@ -199,13 +111,22 @@ function AdminLogin() {
             placeholder="Enter password"
           />
 
-          <button
+          {/* <button
             type="button"
             className="toggle-password"
             onClick={togglePassword}
           >
             {showPassword ? "Hide" : "Show"}
-          </button>
+          </button> */}
+          <button
+  type="button"
+  className="toggle-password"
+  onClick={togglePassword}
+>
+  {showPassword ? <FaEyeSlash /> : <FaEye />}
+</button>
+
+
         </div>
         <button className="login-btn" onClick={handleAdminLogin}>
           Login
@@ -216,3 +137,4 @@ function AdminLogin() {
 }
 
 export default AdminLogin;
+
