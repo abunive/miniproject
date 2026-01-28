@@ -15,6 +15,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {createUserWithEmailAndPassword,signOut,signInWithEmailAndPassword} from "firebase/auth";
 import { setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { query, orderBy } from "firebase/firestore";
+
 
 
 export default function AdminDashboard() {
@@ -185,10 +187,20 @@ const [newUser, setNewUser] = useState({
     setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   };
 
-  const loadEvents = async () => {
-    const snap = await getDocs(collection(db, "Events"));
-    setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-  };
+  // const loadEvents = async () => {
+  //   const snap = await getDocs(collection(db, "Events"));
+  //   setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  // };
+const loadEvents = async () => {
+  const q = query(
+    collection(db, "Events"),
+    orderBy("createdAt", "desc") // 👈 latest first
+  );
+
+  const snap = await getDocs(q);
+  setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+};
+
 
   // ---------------- USERS ----------------
   const toggleActive = async user => {
@@ -237,11 +249,18 @@ const [newUser, setNewUser] = useState({
     finalPosterURL = await getDownloadURL(imageRef);
   }
 
-  await addDoc(collection(db, "Events"), {
-    ...newEvent,
-    posterURL: finalPosterURL,
-    createdAt: new Date()
-  });
+  // await addDoc(collection(db, "Events"), {
+  //   ...newEvent,
+  //   posterURL: finalPosterURL,
+  //   createdAt: new Date()
+  // });
+await addDoc(collection(db, "Events"), {
+  ...newEvent,
+  date: new Date(newEvent.date), // 👈 convert properly
+  posterURL: finalPosterURL,
+  createdAt: new Date()
+});
+
 
   setShowAddEvent(false);
   setNewEvent({ title: "", description: "", status: "pending" });
@@ -432,7 +451,7 @@ const [newUser, setNewUser] = useState({
             <h2>Manage Events</h2>
             <button onClick={() => setShowAddEvent(true)}>➕ Add Event</button>
 
-            {showAddEvent && (
+            {/* {showAddEvent && (
               <div style={modal}>
                 <h3>Add Event</h3>
 
@@ -446,7 +465,131 @@ const [newUser, setNewUser] = useState({
                 <button onClick={createEvent}>Create Event</button>
                 <button onClick={() => setShowAddEvent(false)}>Cancel</button>
               </div>
-            )}
+            )} */}
+
+                {showAddEvent && (
+  <div
+    style={{
+      background: "#f9fafb",
+      padding: 25,
+      borderRadius: 12,
+      maxWidth: 500,
+      margin: "30px auto",
+      boxShadow: "0 8px 20px rgba(0,0,0,0.1)"
+    }}
+  >
+    <h3 style={{ marginBottom: 20, color: "#111827" }}>Add Event</h3>
+
+    <input
+      style={{
+        width: "100%",
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        marginBottom: 12,
+        outline: "none"
+      }}
+      placeholder="Event ID"
+      onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
+    />
+
+    <input
+      style={{
+        width: "100%",
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        marginBottom: 12,
+        outline: "none"
+      }}
+      placeholder="Title"
+      onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
+    />
+
+    <input
+      style={{
+        width: "100%",
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        marginBottom: 12,
+        outline: "none"
+      }}
+      type="date"
+      onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
+    />
+
+    <input
+      style={{
+        width: "100%",
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        marginBottom: 12,
+        outline: "none"
+      }}
+      placeholder="Poster URL"
+      onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}
+    />
+
+    <textarea
+      style={{
+        width: "100%",
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        marginBottom: 12,
+        minHeight: 100,
+        outline: "none",
+        resize: "vertical"
+      }}
+      placeholder="Description"
+      onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
+    />
+
+    <div style={{ display: "flex", gap: 12, marginTop: 15 }}>
+      <button
+        style={{
+          flex: 1,
+          background: "#2563eb",
+          color: "#fff",
+          padding: "12px 0",
+          borderRadius: 10,
+          border: "none",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+        onClick={createEvent}
+      >
+        Create Event
+      </button>
+
+      <button
+        style={{
+          flex: 1,
+          background: "#e5e7eb",
+          color: "#111827",
+          padding: "12px 0",
+          borderRadius: 10,
+          border: "none",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+        onClick={() => setShowAddEvent(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
+
+
             {editingEvent && (
   <div style={modal}>
     <h3>Edit Event</h3>
@@ -518,39 +661,62 @@ const [newUser, setNewUser] = useState({
   </div>
 )}
 
+{events.map(e => (
+  <div key={e.id} style={eventCard}>
+    <div style={eventHeader}>
+      <h3>{e.title}</h3>
+      <span
+        style={{
+          ...statusBadge,
+          background:
+            e.status === "approved" ? "#dcfce7" : "#fef3c7",
+          color:
+            e.status === "approved" ? "#166534" : "#92400e"
+        }}
+      >
+        {e.status}
+      </span>
+    </div>
 
-    {events.map(e => (
-  <div key={e.id} style={card}>
-    <h3>{String(e.title || "No Title")}</h3>
+    <p><b>Event ID:</b> {e.eventid}</p>
 
-    <p><b>Event ID:</b> {String(e.eventid || "N/A")}</p>
-    <p><b>Date:</b> {String(e.date || "N/A")}</p>
-    <p><b>Status:</b> {String(e.status || "pending")}</p>
-    <p><b>Description:</b> {String(e.description || "No description")}</p>
+    <p>
+      <b>Date:</b>{" "}
+      {e.date
+        ? new Date(e.date.seconds * 1000).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+          })
+        : "N/A"}
+    </p>
+
+    <p style={{ color: "#374151" }}>{e.description}</p>
 
     {e.posterURL && (
       <img
         src={e.posterURL}
         alt="poster"
-        style={{ width: "100%", maxWidth: 300, marginTop: 10, borderRadius: 6 }}
+        style={eventImage}
       />
     )}
 
-    <br /><br />
-    <button onClick={() => toggleApproval(e)}>
-      {String(e.status) === "approved" ? "Unapprove" : "Approve"}
-    </button>
-    <button onClick={() => setEditingEvent(e)} style={{ marginLeft: 10 }}>
-      Edit
-    </button>
-    <button
-      onClick={() => deleteEvent(e.id)}
-      style={{ marginLeft: 10 }}
-    >
-      Delete
-    </button>
+    <div style={actionRow}>
+      <button style={approveBtn} onClick={() => toggleApproval(e)}>
+        {e.status === "approved" ? "Unapprove" : "Approve"}
+      </button>
+
+      <button style={primaryBtn} onClick={() => setEditingEvent(e)}>
+        Edit
+      </button>
+
+      <button style={dangerBtn} onClick={() => deleteEvent(e.id)}>
+        Delete
+      </button>
+    </div>
   </div>
 ))}
+
 
           </>
         )}
@@ -580,4 +746,74 @@ const modal = {
   padding: 20,
   marginTop: 20,
   borderRadius: 10
+};
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: 12,
+  borderRadius: 8,
+  border: "1px solid #d1d5db",
+  fontSize: 14
+};
+
+const primaryBtn = {
+  background: "#2563eb",
+  color: "#fff",
+  padding: "8px 14px",
+  borderRadius: 8,
+  border: "none",
+  cursor: "pointer"
+};
+
+const approveBtn = {
+  background: "#16a34a",
+  color: "#fff",
+  padding: "8px 14px",
+  borderRadius: 8,
+  border: "none"
+};
+
+const dangerBtn = {
+  background: "#dc2626",
+  color: "#fff",
+  padding: "8px 14px",
+  borderRadius: 8,
+  border: "none"
+};
+
+const actionRow = {
+  display: "flex",
+  gap: 12,
+  marginTop: 12
+};
+
+const eventCard = {
+  border: "1px solid #e5e7eb",
+  padding: 18,
+  borderRadius: 14,
+  marginBottom: 20,
+  background: "#fff",
+  boxShadow: "0 6px 15px rgba(0,0,0,0.05)"
+};
+
+const eventHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 8
+};
+
+const statusBadge = {
+  padding: "4px 12px",
+  borderRadius: 20,
+  fontSize: 12,
+  fontWeight: "bold",
+  textTransform: "capitalize"
+};
+
+const eventImage = {
+  width: "100%",
+  maxWidth: 320,
+  borderRadius: 10,
+  marginTop: 10
 };

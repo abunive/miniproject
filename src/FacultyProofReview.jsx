@@ -267,18 +267,48 @@ const resetFilter = () => {
           <p>Date: {formatDate(p.eventDate)}</p>
 
           
-
-          {/* Image preview */}
+{/* 
+          Image preview
           {p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
             <img src={p.proofURL} alt="" width="250" />
-          )}
+          )} */}
+          {/* Image preview (safe check) */}
+{p.proofURL && p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
+  <img
+    src={p.proofURL}
+    alt="Proof"
+    width="250"
+    style={{ display: "block", marginTop: 8 }}
+  />
+)}
 
-          <br />
+
+
+          {/* <br />
           <a href={p.proofURL} target="_blank" rel="noreferrer">
             Open Proof
-          </a>
+          </a> */}
+            {p.proofURL ? (
+  <a href={p.proofURL} target="_blank" rel="noreferrer">
+    Open Uploaded Proof
+  </a>
+) : (
+  <p style={{ color: "red" }}>No proof uploaded</p>
+)}
+
+
 
           <p>Status: {p.status}</p>
+         
+
+{/* Show rejection reason */}
+{p.status === "rejected" && p.rejectReason && (
+  <p style={{ color: "red", fontWeight: "bold" }}>
+    Rejection Reason: {p.rejectReason}
+  </p>
+)}
+
+
 
           {p.status === "pending" && (
             <>

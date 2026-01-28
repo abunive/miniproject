@@ -18,6 +18,8 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import FacultyProofReview from "./FacultyProofReview";
+import { Timestamp } from "firebase/firestore";
+
 
 export default function FacultyDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -79,44 +81,59 @@ const getAllowedRoles = (currentRole) => {
     return () => unsub();
   }, [isCreatingUser]);
 
+  // useEffect(() => {
+  //   loadUsers();
+  //   loadEvents();
+  // }, []);
   useEffect(() => {
-    loadUsers();
-    loadEvents();
-  }, []);
+  const unsub = auth.onAuthStateChanged(user => {
+    if (user) {
+      loadUsers();
+      loadEvents();
+    }
+  });
+
+  return () => unsub();
+}, []);
+
 
   const loadUsers = async () => {
     const snap = await getDocs(collection(db, "Users"));
     setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   };
 
-  // const loadEvents = async () => {
-  //   const snap = await getDocs(collection(db, "Events"));
+// const loadEvents = async () => {
+//   const snap = await getDocs(collection(db, "Events"));
 
-  //   const eventList = snap.docs
-  //     .map(d => ({ id: d.id, ...d.data() }))
-  //     .sort((a, b) => {
-  //       const aTime = a.createdAt?.seconds || 0;
-  //       const bTime = b.createdAt?.seconds || 0;
-  //       return bTime - aTime; // newest first
-  //     });
+//   const eventList = snap.docs
+//     .map(d => ({ id: d.id, ...d.data() }))
+//     .sort((a, b) => {
+//       // Make sure we get the timestamp correctly
+//       const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+//       const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+//       return bTime - aTime; // newest first
+//     });
 
-  //   setEvents(eventList);
-  // };
+//   setEvents(eventList);
+// };
+
 const loadEvents = async () => {
   const snap = await getDocs(collection(db, "Events"));
 
+  const getTime = (t) => {
+    if (!t) return 0;
+    if (t.seconds) return t.seconds * 1000; // Firestore Timestamp
+    if (t instanceof Date) return t.getTime(); // JS Date
+    return 0;
+  };
+
   const eventList = snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => {
-      // Make sure we get the timestamp correctly
-      const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-      const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-      return bTime - aTime; // newest first
-    });
+    .sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 
+  console.log("Loaded events:", eventList.length);
   setEvents(eventList);
 };
-
 
 
   /* ---------------- USERS ---------------- */
@@ -160,8 +177,44 @@ const loadEvents = async () => {
 
   /* ---------------- EVENTS ---------------- */
 
-  const createEvent = async () => {
-  let posterURL = newEvent.posterURL;
+//   const createEvent = async () => {
+//   let posterURL = newEvent.posterURL;
+
+//   if (posterFile) {
+//     const imgRef = ref(storage, `eventPosters/${Date.now()}`);
+//     await uploadBytes(imgRef, posterFile);
+//     posterURL = await getDownloadURL(imgRef);
+//   }
+
+//   const docRef = await addDoc(collection(db, "Events"), {
+//     ...newEvent,
+//     posterURL,
+//     createdAt: new Date()
+//   });
+
+//   const newEventData = { id: docRef.id, ...newEvent, posterURL, createdAt: new Date() };
+
+//   // Prepend new event to top of state
+//   setEvents(prev => [newEventData, ...prev]);
+
+//   setShowAddEvent(false);
+//   setNewEvent({
+//     eventid: "",
+//     title: "",
+//     date: "",
+//     description: "",
+//     posterURL: "",
+//     status: "pending"
+//   });
+// };
+
+const createEvent = async () => {
+  if (!newEvent.eventid || !newEvent.title || !newEvent.date) {
+    alert("Event ID, Title and Date are required");
+    return;
+  }
+
+  let posterURL = newEvent.posterURL || "";
 
   if (posterFile) {
     const imgRef = ref(storage, `eventPosters/${Date.now()}`);
@@ -169,18 +222,15 @@ const loadEvents = async () => {
     posterURL = await getDownloadURL(imgRef);
   }
 
-  const docRef = await addDoc(collection(db, "Events"), {
+  await addDoc(collection(db, "Events"), {
     ...newEvent,
     posterURL,
-    createdAt: new Date()
+    createdAt: Timestamp.now(), // 🔥 FIX
+    status: "pending"
   });
 
-  const newEventData = { id: docRef.id, ...newEvent, posterURL, createdAt: new Date() };
-
-  // Prepend new event to top of state
-  setEvents(prev => [newEventData, ...prev]);
-
   setShowAddEvent(false);
+  setPosterFile(null);
   setNewEvent({
     eventid: "",
     title: "",
@@ -189,34 +239,10 @@ const loadEvents = async () => {
     posterURL: "",
     status: "pending"
   });
+
+  loadEvents(); // 🔥 reload from Firestore
 };
 
-  // const createEvent = async () => {
-  //   let posterURL = newEvent.posterURL;
-
-  //   if (posterFile) {
-  //     const imgRef = ref(storage, `eventPosters/${Date.now()}`);
-  //     await uploadBytes(imgRef, posterFile);
-  //     posterURL = await getDownloadURL(imgRef);
-  //   }
-
-  //   await addDoc(collection(db, "Events"), {
-  //     ...newEvent,
-  //     posterURL,
-  //     createdAt: new Date()
-  //   });
-
-  //   setShowAddEvent(false);
-  //   setNewEvent({
-  //     eventid: "",
-  //     title: "",
-  //     date: "",
-  //     description: "",
-  //     posterURL: "",
-  //     status: "pending"
-  //   });
-  //   loadEvents();
-  // };
 
   const toggleApproval = async (event, action) => {
     let newStatus = "pending";
@@ -342,7 +368,7 @@ const loadEvents = async () => {
           <>
             <h2>Manage Events</h2>
 
-            <button onClick={() => setShowAddEvent(true)}> Add Event</button>
+            <button onClick={() => setShowAddEvent(true)}>  ➕ Add Event</button>
 
             {showAddEvent && (
               <div style={{ background: "#ffffff", padding: 24, marginTop: 20, borderRadius: 14, maxWidth: 420, boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }}>
