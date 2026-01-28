@@ -18,10 +18,16 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import FacultyProofReview from "./FacultyProofReview";
+
+
 import { Timestamp } from "firebase/firestore";
 
+import useConfirmBackNavigation from "./useConfirmBackNavigation";
 
 export default function FacultyDashboard() {
+   useConfirmBackNavigation(
+    "Do you really want to go back from Faculty Dashboard?"
+  );
   const [activeTab, setActiveTab] = useState("dashboard");
   const [users, setUsers] = useState([]);
   const [events, setEvents] = useState([]);
@@ -30,6 +36,8 @@ export default function FacultyDashboard() {
   const [facultyName, setFacultyName] = useState("");
   const [posterFile, setPosterFile] = useState(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState("");
+
 
   const functions = getFunctions();
 
@@ -65,18 +73,14 @@ export default function FacultyDashboard() {
       setFacultyName(snap.data().name);
     });
 
-const getAllowedRoles = (currentRole) => {
-  if (currentRole === "admin")
-    return ["student", "organizer", "faculty", "admin"];
-
-  if (currentRole === "faculty")
-    return ["student", "organizer", "faculty"];
-
-  if (currentRole === "organizer")
-    return ["student", "organizer"];
-
+const getAllowedRoles = (role) => {
+  if (role === "faculty") return ["student", "organizer", "faculty"];
+  if (role === "student") return ["organizer"];
+  if (role === "organizer") return ["student"];
   return [];
 };
+
+
 
     return () => unsub();
   }, [isCreatingUser]);
@@ -85,55 +89,70 @@ const getAllowedRoles = (currentRole) => {
   //   loadUsers();
   //   loadEvents();
   // }, []);
-  useEffect(() => {
-  const unsub = auth.onAuthStateChanged(user => {
-    if (user) {
-      loadUsers();
-      loadEvents();
-    }
-  });
-
-  return () => unsub();
-}, []);
-
-
+  
+  
   const loadUsers = async () => {
     const snap = await getDocs(collection(db, "Users"));
     setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   };
 
-// const loadEvents = async () => {
-//   const snap = await getDocs(collection(db, "Events"));
 
-//   const eventList = snap.docs
-//     .map(d => ({ id: d.id, ...d.data() }))
-//     .sort((a, b) => {
-//       // Make sure we get the timestamp correctly
-//       const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-//       const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-//       return bTime - aTime; // newest first
-//     });
+    
+    const loadEvents = async () => {
+      const snap = await getDocs(collection(db, "Events"));
+      
+      const getTime = (t) => {
+        if (!t) return 0;
+        if (t.seconds) return t.seconds * 1000; // Firestore Timestamp
+        if (t instanceof Date) return t.getTime(); // JS Date
+        return 0;
+      };
+      
+      const eventList = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+      
+      console.log("Loaded events:", eventList.length);
+      setEvents(eventList);
+    };
+    
+  //   useEffect(() => {
+  //   const unsub = auth.onAuthStateChanged(user => {
+  //     if (user) {
+  //       loadUsers();
+  //       loadEvents();
+  //     }
+  //   });
+  
+  //   return () => unsub();
+  // }, []);
+useEffect(() => {
+  const unsub = auth.onAuthStateChanged(async user => {
+    if (isCreatingUser) return;
 
-//   setEvents(eventList);
-// };
+    if (!user) {
+      window.location.href = "/";
+      return;
+    }
 
-const loadEvents = async () => {
-  const snap = await getDocs(collection(db, "Events"));
+    const snap = await getDoc(doc(db, "Users", user.uid));
 
-  const getTime = (t) => {
-    if (!t) return 0;
-    if (t.seconds) return t.seconds * 1000; // Firestore Timestamp
-    if (t instanceof Date) return t.getTime(); // JS Date
-    return 0;
-  };
+    if (!snap.exists() || snap.data().isActive === false) {
+      alert("Access denied");
+      window.location.href = "/";
+      return;
+    }
 
-  const eventList = snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+    setFacultyName(snap.data().name);
 
-  console.log("Loaded events:", eventList.length);
-  setEvents(eventList);
-};
+    // ✅ LOAD DATA HERE (ONCE)
+    loadUsers();
+    loadEvents();
+  });
+
+  return () => unsub();
+}, [isCreatingUser]);
+
 
 
   /* ---------------- USERS ---------------- */
@@ -177,36 +196,6 @@ const loadEvents = async () => {
 
   /* ---------------- EVENTS ---------------- */
 
-//   const createEvent = async () => {
-//   let posterURL = newEvent.posterURL;
-
-//   if (posterFile) {
-//     const imgRef = ref(storage, `eventPosters/${Date.now()}`);
-//     await uploadBytes(imgRef, posterFile);
-//     posterURL = await getDownloadURL(imgRef);
-//   }
-
-//   const docRef = await addDoc(collection(db, "Events"), {
-//     ...newEvent,
-//     posterURL,
-//     createdAt: new Date()
-//   });
-
-//   const newEventData = { id: docRef.id, ...newEvent, posterURL, createdAt: new Date() };
-
-//   // Prepend new event to top of state
-//   setEvents(prev => [newEventData, ...prev]);
-
-//   setShowAddEvent(false);
-//   setNewEvent({
-//     eventid: "",
-//     title: "",
-//     date: "",
-//     description: "",
-//     posterURL: "",
-//     status: "pending"
-//   });
-// };
 
 const createEvent = async () => {
   if (!newEvent.eventid || !newEvent.title || !newEvent.date) {
@@ -279,6 +268,13 @@ const createEvent = async () => {
     textTransform: "capitalize"
   });
 
+  const formatDate = (date) => {
+  if (!date) return "N/A";
+  if (date.toDate) return date.toDate().toLocaleDateString("en-IN");
+  if (typeof date === "string") return date;
+  return "N/A";
+};
+
   /* ---------------- UI ---------------- */
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
@@ -324,7 +320,7 @@ const createEvent = async () => {
                       Active: {String(u.isActive)}
                       <br />
                       Role:
-                        <select
+                        {/* <select
                           value={u.role || "student"}
                           onChange={e =>
                             updateDoc(doc(db, "Users", u.id), {
@@ -336,7 +332,51 @@ const createEvent = async () => {
                           <option value="student">Student</option>
                           <option value="organizer">Organizer</option>
                           <option value="faculty">Faculty</option>
-                        </select>
+                        </select> */}
+
+                  <select
+  value={u.role || "student"}
+  onChange={e =>
+    updateDoc(doc(db, "Users", u.id), {
+      role: e.target.value
+    }).then(loadUsers)
+  }
+  style={{
+    marginLeft: 10,
+    padding: "6px 8px",
+    borderRadius: 6
+  }}
+>
+  {/* STUDENT */}
+  <option
+    value="student"
+    disabled={currentUserRole === "student"}
+  >
+    Student
+  </option>
+
+  {/* ORGANIZER */}
+  <option
+    value="organizer"
+    disabled={currentUserRole === "student"}
+  >
+    Organizer
+  </option>
+
+  {/* FACULTY */}
+  <option
+    value="faculty"
+    disabled={
+      currentUserRole !== "faculty" ||   // not faculty anymore
+      u.id === currentUserId              // cannot promote yourself back
+    }
+  >
+    Faculty
+  </option>
+</select>
+
+                
+
 
                       <br /><br />
 
@@ -458,61 +498,65 @@ const createEvent = async () => {
             )}
 
             {/* EVENTS LIST */}
-            {events.map(e => (
-              <div key={e.id} style={card}>
-                <h3>{e.title || "No Title"}</h3>
+          {events.map(e => (
+  <div key={e.id} style={card}>
+    <h3>{String(e.title || "No Title")}</h3>
 
-                <p><b>Event ID:</b> {e.eventid || "N/A"}</p>
-                <p><b>Date:</b> {e.date || "N/A"}</p>
+    <p><b>Event ID:</b> {String(e.eventid || "N/A")}</p>
 
-                <p>
-                  <b>Status:</b>{" "}
-                  <span style={statusStyle(e.status)}>
-                    {e.status || "pending"}
-                  </span>
-                </p>
+    <p>
+      <b>Date:</b> {formatDate(e.date)}
+    </p>
 
-                <p><b>Description:</b> {e.description || "No description"}</p>
+    <p>
+      <b>Status:</b>{" "}
+      <span style={statusStyle(e.status)}>
+        {String(e.status || "pending")}
+      </span>
+    </p>
 
-                {e.posterURL ? (
-                  <img
-                    src={e.posterURL}
-                    alt="Event Poster"
-                    style={{ width: "100%", maxWidth: 320, borderRadius: 8, marginTop: 10 }}
-                  />
-                ) : (
-                  <p style={{ fontStyle: "italic" }}>No image uploaded</p>
-                )}
+    <p>
+      <b>Description:</b>{" "}
+      {String(e.description || "No description")}
+    </p>
 
-                <br />
+    {typeof e.posterURL === "string" && e.posterURL && (
+      <img
+        src={e.posterURL}
+        alt="Event Poster"
+        style={{ width: "100%", maxWidth: 320, borderRadius: 8, marginTop: 10 }}
+      />
+    )}
 
-                {/* APPROVE / UNAPPROVE BUTTONS */}
-                {e.status !== "approved" && (
-                  <button
-                    onClick={() => toggleApproval(e, "approve")}
-                    style={primaryBtn}
-                  >
-                    Approve
-                  </button>
-                )}
+    <br />
 
-                {e.status !== "unapproved" && (
-                  <button
-                    onClick={() => toggleApproval(e, "unapprove")}
-                    style={{ ...dangerBtn, marginLeft: 10 }}
-                  >
-                    Unapprove
-                  </button>
-                )}
+    {e.status !== "approved" && (
+      <button
+        onClick={() => toggleApproval(e, "approve")}
+        style={primaryBtn}
+      >
+        Approve
+      </button>
+    )}
 
-                <button
-                  onClick={() => deleteEvent(e.id)}
-                  style={{ ...dangerBtn, marginLeft: 10 }}
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+    {e.status !== "unapproved" && (
+      <button
+        onClick={() => toggleApproval(e, "unapprove")}
+        style={{ ...dangerBtn, marginLeft: 10 }}
+      >
+        Unapprove
+      </button>
+    )}
+
+    <button
+      onClick={() => deleteEvent(e.id)}
+      style={{ ...dangerBtn, marginLeft: 10 }}
+    >
+      Delete
+    </button>
+  </div>
+))}
+
           </>
         )}
 

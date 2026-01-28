@@ -3,8 +3,16 @@ import { auth, db } from "./firebase/firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import StudentProofUpload from "./StudentProofUpload";
+import StudentActivityPoints from "./StudentActivityPoints";
+import useConfirmBackNavigation from "./useConfirmBackNavigation";
+
+
+
 
 export default function StudentDashboard() {
+    useConfirmBackNavigation(
+      "Do you really want to go back from Faculty Dashboard?"
+    );
   const [activeTab, setActiveTab] = useState("dashboard");
   const [events, setEvents] = useState([]);
   const [studentName, setStudentName] = useState("");
@@ -101,13 +109,25 @@ export default function StudentDashboard() {
 
       {/* CONTENT */}
       <div style={{ flex: 1, padding: 30 }}>
-        {activeTab === "dashboard" && (
+        {/* {activeTab === "dashboard" && (
           <>
             <h1>Student Dashboard</h1>
             <h2>Welcome, <b>{studentName}</b></h2>
             <p>Total Activity Points: 0</p>
           </>
-        )}
+        )} */}
+        {activeTab === "dashboard" && (
+  <>
+    <h1>Student Dashboard</h1>
+    <h2>Welcome, <b>{studentName}</b></h2>
+
+    {/* ✅ SHOW ACTIVITY POINTS */}
+    {auth.currentUser && (
+      <StudentActivityPoints studentId={auth.currentUser.uid} />
+    )}
+  </>
+)}
+
 
         {activeTab === "events" && (
           <>

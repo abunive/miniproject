@@ -6,11 +6,16 @@ import {
   updateDoc,
   doc
 } from "firebase/firestore";
+import FacultyAddActivityPoints from "./FacultyAddActivityPoints";
+
+
 
 export default function FacultyProofReview() {
   const [proofs, setProofs] = useState([]);
   const [reason, setReason] = useState({});
   const [allProofs, setAllProofs] = useState([]); // original copy
+  const [selectedProof, setSelectedProof] = useState(null);
+
 
 const [filters, setFilters] = useState({
   studentName: "",
@@ -96,6 +101,26 @@ const resetFilter = () => {
   });
   setProofs(allProofs);
 };
+const removePointsIfApproved = async proof => {
+  if (proof.status !== "approved" || !proof.activityPoints) return;
+
+  const ref = doc(db, "StudentPoints", proof.studentId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const updatedPoints = data.points.filter(
+    p => p.proofId !== proof.id
+  );
+
+  const removed = data.points.find(p => p.proofId === proof.id);
+
+  await updateDoc(ref, {
+    points: updatedPoints,
+    totalPoints: data.totalPoints - (removed?.points || 0)
+  });
+};
 
 
 
@@ -166,60 +191,13 @@ const resetFilter = () => {
       outline: "none"
     }}
   />
+
+
+
 </div>
 
-  
-  {/* <h4>Filter Proofs</h4>
-
-  <input
-    placeholder="Student Name"
-    value={filters.studentName}
-    onChange={e =>
-      setFilters({ ...filters, studentName: e.target.value })
-    }
-  />
-
-  <select
-    value={filters.category}
-    onChange={e =>
-      setFilters({ ...filters, category: e.target.value })
-    }
-  >
-    <option value="">All Categories</option>
-    <option value="Workshop">Workshop</option>
-    <option value="Internship">Internship</option>
-    <option value="Arts">Arts</option>
-    <option value="Sports">Sports</option>
-    <option value="Other">Other</option>
-  </select>
-
-
-  <input
-    type="date"
-    value={filters.date}
-    onChange={e =>
-        setFilters({ ...filters, date: e.target.value })
-    }
-    /> */}
-
-    {/* <select
-      value={filters.purpose}
-      onChange={e =>
-        setFilters({ ...filters, purpose: e.target.value })
-      }
-    >
-      <option value="">All Purposes</option>
-      <option value="Activity Point">Activity Point</option>
-      <option value="Duty Leave">Duty Leave</option>
-      <option value="Activity + Duty Leave">Activity + Duty Leave</option>
-    </select> */}
-  <br /><br />
-
-  {/* <button onClick={applyFilter}>Apply Filter</button>
-  <button onClick={resetFilter} style={{ marginLeft: 10 }}>
-    Reset
-  </button> */}
-  <button
+ 
+<button
   onClick={applyFilter}
   onMouseOver={e => (e.target.style.background = "#1d4ed8")}
   onMouseOut={e => (e.target.style.background = "#2563eb")}
@@ -230,7 +208,8 @@ const resetFilter = () => {
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
-    fontWeight: "600"
+    fontWeight: "600",
+    marginTop: 12   // 👈 added
   }}
 >
   Apply Filter
@@ -248,6 +227,7 @@ const resetFilter = () => {
     borderRadius: "6px",
     cursor: "pointer",
     marginLeft: 10,
+    marginTop: 12,  // 👈 added
     fontWeight: "600"
   }}
 >
@@ -255,78 +235,79 @@ const resetFilter = () => {
 </button>
 
 
+
   
 </div>
 
 
-      {proofs.map(p => (
-        <div key={p.id} style={{ border: "1px solid #aaa", padding: 12 }}>
-          <p><b>{p.studentName}</b></p>
-          <p>{p.category} | {p.purpose}</p>
-          <p>{p.description}</p>
-          <p>Date: {formatDate(p.eventDate)}</p>
+    
+{[...proofs].reverse().map(p => (
+  <div key={p.id} style={{ border: "1px solid #aaa", padding: 12 }}>
+    <p><b>{p.studentName}</b></p>
+    <p>{p.category} | {p.purpose}</p>
+    <p>{p.description}</p>
+    <p>Date: {formatDate(p.eventDate)}</p>
 
-          
-{/* 
-          Image preview
-          {p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
-            <img src={p.proofURL} alt="" width="250" />
-          )} */}
-          {/* Image preview (safe check) */}
-{p.proofURL && p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
-  <img
-    src={p.proofURL}
-    alt="Proof"
-    width="250"
-    style={{ display: "block", marginTop: 8 }}
+    {p.proofURL && p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
+      <img
+        src={p.proofURL}
+        alt="Proof"
+        width="250"
+        style={{ display: "block", marginTop: 8 }}
+      />
+    )}
+
+    {p.proofURL ? (
+      <a href={p.proofURL} target="_blank" rel="noreferrer">
+        Open Uploaded Proof
+      </a>
+    ) : (
+      <p style={{ color: "red" }}>No proof uploaded</p>
+    )}
+
+    <p>Status: {p.status}</p>
+
+    {p.status === "rejected" && p.rejectReason && (
+      <p style={{ color: "red", fontWeight: "bold" }}>
+        Rejection Reason: {p.rejectReason}
+      </p>
+    )}
+
+    {p.status === "pending" && (
+      <>
+        <br />
+        <button onClick={() => setSelectedProof(p)}>Approve</button>
+
+        <br />
+        <input
+          placeholder="Reject reason"
+          onChange={e =>
+            setReason({ ...reason, [p.id]: e.target.value })
+          }
+        />
+        <button onClick={() => rejectProof(p)}>Reject</button>
+      </>
+    )}
+  </div>
+))}
+
+
+
+      {/* {selectedProof && selectedProof.purpose === "Activity Point" && (
+        <FacultyAddActivityPoints
+          proof={selectedProof}
+          onClose={() => setSelectedProof(null)}
+          onDone={loadProofs}
+        />
+      )} */}
+      {selectedProof && (
+  <FacultyAddActivityPoints
+    proof={selectedProof}
+    onClose={() => setSelectedProof(null)}
+    onDone={loadProofs}
   />
 )}
 
-
-
-          {/* <br />
-          <a href={p.proofURL} target="_blank" rel="noreferrer">
-            Open Proof
-          </a> */}
-            {p.proofURL ? (
-  <a href={p.proofURL} target="_blank" rel="noreferrer">
-    Open Uploaded Proof
-  </a>
-) : (
-  <p style={{ color: "red" }}>No proof uploaded</p>
-)}
-
-
-
-          <p>Status: {p.status}</p>
-         
-
-{/* Show rejection reason */}
-{p.status === "rejected" && p.rejectReason && (
-  <p style={{ color: "red", fontWeight: "bold" }}>
-    Rejection Reason: {p.rejectReason}
-  </p>
-)}
-
-
-
-          {p.status === "pending" && (
-            <>
-              <br />
-              <button onClick={() => approveProof(p)}>Approve</button>
-
-              <br />
-              <input
-                placeholder="Reject reason"
-                onChange={e =>
-                  setReason({ ...reason, [p.id]: e.target.value })
-                }
-              />
-              <button onClick={() => rejectProof(p)}>Reject</button>
-            </>
-          )}
-        </div>
-      ))}
     </div>
   );
-}
+} 

@@ -189,7 +189,7 @@ export default function StudentProofUpload() {
 
       <hr style={{ margin: "30px 0" }} />
 
-      <h3>My Proofs</h3>
+      {/* <h3>My Proofs</h3>
 
       {myProofs.map(p => (
         <div
@@ -237,7 +237,58 @@ export default function StudentProofUpload() {
             <p style={{ color: "red" }}>Reason: {p.rejectReason}</p>
           )}
         </div>
-      ))}
+      ))} */}
+        <h3>My Proofs</h3>
+
+{[...myProofs].reverse().map(p => (
+  <div
+    key={p.id}
+    style={{
+      border: "1px solid #ddd",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 15,
+      background: "#f9fafb"
+    }}
+  >
+    <p>
+      <b>{p.category}</b> | Purpose: <b>{p.purpose}</b>
+    </p>
+
+    <p>{p.description}</p>
+    <p>Status: <b>{p.status}</b></p>
+
+    {p.proofURL && (
+      <img
+        src={p.proofURL}
+        alt="Proof"
+        width="220"
+        style={{ marginTop: 8, borderRadius: 6 }}
+        onError={e => (e.target.style.display = "none")}
+      />
+    )}
+
+    <br />
+    <a href={p.proofURL} target="_blank" rel="noreferrer">
+      View Proof
+    </a>
+
+    {p.status === "pending" && (
+      <div style={{ marginTop: 10 }}>
+        <button style={{ marginRight: 10 }} onClick={() => handleEdit(p)}>
+          Edit
+        </button>
+        <button onClick={() => handleDelete(p.id)}>Delete</button>
+      </div>
+    )}
+
+    {p.rejectReason && (
+      <p style={{ color: "red" }}>Reason: {p.rejectReason}</p>
+    )}
+  </div>
+))}
+
+
     </div>
   );
 }
