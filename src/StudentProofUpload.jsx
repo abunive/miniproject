@@ -37,6 +37,8 @@ export default function StudentProofUpload() {
   const [description, setDescription] = useState("");
   const [prize, setPrize] = useState("");
   const [professionalActivity, setProfessionalActivity] = useState("");
+  const [leadershipRole, setLeadershipRole] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
 
 
@@ -144,68 +146,140 @@ if(professionalActivity==="industrial"){
 total = 5;
 total = Math.min(total,10);
 }
-//foreign language
-if(professionalActivity==="foreign language"){
-total = 50;
-}
+
 
 return total;
-};}
+};
+// ---------- ENTREPRENEURSHIP & INNOVATION ----------
+if (activityHead === "entrepreneurship") {
 
-  // const calculatePoints = () => {
+  // Foreign Language
+  if (activity === "foreign_language") {
+    total = 50;
+    total = Math.min(total, 50);
+  }
 
-// let base = 0;
-// let bonus = 0;
+  // Startup Registered
+  if (activity === "startup_registered") {
+    total = 60;
+    total = Math.min(total, 60);
+  }
 
-// const levelPoints = {
-// college:8,
-// zonal:15,
-// state:25,
-// national:40,
-// international:60
-// };
+  // Patent Filed
+  if (activity === "patent_filed") {
+    total = 30;
+    total = Math.min(total, 60);
+  }
 
-// if(level) base = levelPoints[level];
+  // Patent Published
+  if (activity === "patent_published") {
+    total = 35;
+    total = Math.min(total, 60);
+  }
 
-// if(prize){
+  // Patent Approved
+  if (activity === "patent_approved") {
+    total = 50;
+    total = Math.min(total, 60);
+  }
 
-// if(level==="college" || level==="zonal" || level==="state"){
-// if(prize==="1") bonus=10;
-// if(prize==="2") bonus=8;
-// if(prize==="3") bonus=5;
-// }
-// else{
-// if(prize==="1") bonus=20;
-// if(prize==="2") bonus=16;
-// if(prize==="3") bonus=12;
-// }
+  // Patent Licensed
+  if (activity === "patent_licensed") {
+    total = 80;
+    total = Math.min(total, 80);
+  }
 
-// }
+  // Prototype Developed & Tested
+  if (activity === "prototype_development") {
+    total = 60;
+    total = Math.min(total, 60);
+  }
 
-// let total = base + bonus;
+  // Award for Product
+  if (activity === "award_product") {
+    total = 60;
+    total = Math.min(total, 60);
+  }
 
-// // MAX LIMIT BASED ON LEVEL
-// if(activityHead==="national" || activityHead==="sports" || activityHead==="cultural"){
+  // Innovative Technology Used
+  if (activity === "innovative_technology") {
+    total = 60;
+    total = Math.min(total, 60);
+  }
 
-// let maxAllowed = 60;
+  // Government Venture Funding
+  if (activity === "venture_funding") {
+    total = 80;
+    total = Math.min(total, 80);
+  }
 
-// if(level==="national" || level==="international"){
-// maxAllowed = 80;
-// }
+  // Startup Employment
+  if (activity === "startup_employment") {
+    total = 80;
+    total = Math.min(total, 80);
+  }
 
-// total = Math.min(total, maxAllowed);
-// }
+  // Social Innovation
+  if (activity === "social_innovation") {
+    total = 50;
+    total = Math.min(total, 50);
+  }
+};
+// ---------- LEADERSHIP & MANAGEMENT ----------
+if (activityHead === "leadership") {
+
+  // First 4 categories (Max 40)
+  const groupA = [
+    "professional_society",
+    "association_chapter",
+    "festival_event",
+    "hobby_club"
+  ];
+
+  if (groupA.includes(activity)) {
+    if (leadershipRole === "core") total = 15;
+    if (leadershipRole === "sub") total = 10;
+    if (leadershipRole === "volunteer") total = 5;
+
+    total = Math.min(total, 40);
+  }
+
+  // Elected Representatives (Different Max)
+  if (activity === "elected_representative") {
+    if (leadershipRole === "chairman") total = 30;
+    if (leadershipRole === "secretary") total = 25;
+    if (leadershipRole === "member") total = 15;
+
+   
+  }
+}
+}
 
 
-// return total;
-// };
+
 
   const submitProof = async () => {
 
-    if (!scheme || !purpose || !proofURL) {
-      alert("All mandatory fields must be filled");
-      return;
-    }
+    // if (!scheme || !purpose || !proofURL) {
+    //   alert("All mandatory fields must be filled");
+    //   return;
+    // }
+    // VALIDATION
+if (
+  !scheme ||
+  !purpose ||
+  !proofURL ||
+  ((purpose === "duty" || purpose === "both") && (!dutyType || !dutyDate)) ||
+  ((purpose === "activity" || purpose === "both") && (
+    !activityHead ||
+    (activityHead === "leadership" && !leadershipRole)
+  ))
+) {
+  setErrorMsg("⚠ Please fill all required fields.");
+  return;
+}
+
+setErrorMsg("");
 
     const data = {
       studentId: user.uid,
@@ -257,6 +331,7 @@ return total;
     setDescription("");
     setPrize("");
     setProfessionalActivity("");
+    setLeadershipRole("");
 
   };
 
@@ -293,10 +368,27 @@ return total;
 
   return (
     <div style={{ maxWidth: 650, margin: "auto", padding: 20 }}>
+      {errorMsg && (
+  <div style={{
+    background: "#fee2e2",
+    color: "#b91c1c",
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 15,
+    border: "1px solid #fca5a5",
+    fontWeight: 500
+  }}>
+    {errorMsg}
+  </div>
+)}
 
       <h2>KTU Activity & Duty Leave Upload</h2>
 
       {/* SCHEME */}
+    
+    <label>
+      Scheme <span style={{ color: "red" }}>*</span>
+    </label>
       <select style={inputStyle} value={scheme} onChange={e => setScheme(e.target.value)}>
         <option value="">Select Scheme</option>
         <option value="2019">2019 Scheme</option>
@@ -304,6 +396,9 @@ return total;
       </select>
 
       {/* PURPOSE */}
+       <label>
+      Purpose <span style={{ color: "red" }}>*</span>
+    </label>
       <select style={inputStyle} value={purpose} onChange={e => setPurpose(e.target.value)}>
         <option value="">Select Purpose</option>
         <option value="duty">Duty Leave</option>
@@ -312,6 +407,9 @@ return total;
       </select>
 
       {/* DUTY LEAVE SECTION */}
+       <label>
+      Duty Leave purpose <span style={{ color: "red" }}>*</span>
+    </label>
       {(purpose === "duty" || purpose === "both") && (
         <>
           <input
@@ -320,8 +418,11 @@ return total;
             value={dutyType}
             onChange={e => setDutyType(e.target.value)}
           />
-
+           <label>
+      Date <span style={{ color: "red" }}>*</span>
+    </label>
           <input
+          
             style={inputStyle}
             type="date"
             value={dutyDate}
@@ -331,6 +432,9 @@ return total;
       )}
 
       {/* ACTIVITY SECTION */}
+       <label>
+      Activity Header <span style={{ color: "red" }}>*</span>
+    </label>
       {(purpose === "activity" || purpose === "both") && (
         <>
           <select style={inputStyle} value={activityHead}
@@ -347,6 +451,9 @@ return total;
           {/* NATIONAL */}
           {activityHead === "national" && (
             <>
+             <label>
+      Activity <span style={{ color: "red" }}>*</span>
+    </label>
               <select style={inputStyle} value={activity}
                 onChange={e => setActivity(e.target.value)}>
                 <option value="">Select</option>
@@ -400,7 +507,7 @@ return total;
         <option value="poster presentation">Poster Presentation at IIT's/NIT's</option>
         <option value="internship">Industrial Training / Internship(atlist for 5 full days)</option>
         <option value="industrial">Industrial/Exhibition Visit</option>
-        <option value="foreign language">Foreign Language Skill(TOEFL/IELTS,BEC Exams etc..)</option>
+       
         </select>
         )}
               {activityHead==="professional" &&
@@ -418,7 +525,87 @@ return total;
 
       </select>
       )}
+          
+          {/* ENTREPRENEURSHIP & INNOVATION */}
+{activityHead === "entrepreneurship" && (
+  <select
+    style={inputStyle}
+    value={activity}
+    onChange={e => setActivity(e.target.value)}
+  >
+    <option value="">Select Event</option>
+    <option value="foreign_language">Foreign Language Skill (TOEFL/IELTS/BEC Exams etc) </option>
+    <option value="startup_registered">Startup Company Registered Legally</option>
+    <option value="patent_filed">Patent Filed</option>
+    <option value="patent_published">Patent Published</option>
+    <option value="patent_approved">Patent Approved </option>
+    <option value="patent_licensed">Patent Licensed </option>
+    <option value="prototype_development">Prototype Developed & Tested</option>
+    <option value="award_product"> Award for Products Developed</option>
+    <option value="innovative_technology">Innovative Technologies developed and  Used by Industries/users</option>
+    <option value="venture_funding">Government Venture Capital Funding for Innovative ideas/products</option>
+    <option value="startup_employment"> Startup Employment ( Offering jobs to 2 persons not less than  ₹15000/month) </option>
+    <option value="social_innovation">Societal Innovations</option>
 
+  </select>
+)}
+{/* LEADERSHIP & MANAGEMENT */}
+{activityHead === "leadership" && (
+  <>
+    <select
+      style={inputStyle}
+      value={activity}
+      onChange={e => {
+        setActivity(e.target.value);
+        setLeadershipRole("");
+      }}
+    >
+      <option value="">Select Event</option>
+      <option value="professional_society">
+        Student Professional Societies (IEEE, IET, ASME, SAE, NASA)
+      </option>
+      <option value="association_chapter">
+        College Association Chapters
+      </option>
+      <option value="festival_event">
+        Festival & Technical Events (College Approved)
+      </option>
+      <option value="hobby_club">
+        Hobby Clubs
+      </option>
+      <option value="elected_representative">
+        Elected Student Representative
+      </option>
+    </select>
+
+    {/* Role Dropdown */}
+    {activity !== "" && activity !== "elected_representative" && (
+      <select
+        style={inputStyle}
+        value={leadershipRole}
+        onChange={e => setLeadershipRole(e.target.value)}
+      >
+        <option value="">Select Role</option>
+        <option value="core">Core Coordinator</option>
+        <option value="sub">Sub Coordinator</option>
+        <option value="volunteer">Volunteer</option>
+      </select>
+    )}
+
+    {activity === "elected_representative" && (
+      <select
+        style={inputStyle}
+        value={leadershipRole}
+        onChange={e => setLeadershipRole(e.target.value)}
+      >
+        <option value="">Select Position</option>
+        <option value="chairman">Chairman</option>
+        <option value="secretary">Secretary</option>
+        <option value="member">Council Member</option>
+      </select>
+    )}
+  </>
+)}
 
         </>
       )}
