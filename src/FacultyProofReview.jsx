@@ -73,7 +73,7 @@ const applyFilter = () => {
 
   if (filters.category) {
     filtered = filtered.filter(p =>
-      p.category === filters.category
+      p.activityHead === filters.category
     );
   }
 
@@ -85,7 +85,7 @@ const applyFilter = () => {
 
   if (filters.date) {
     filtered = filtered.filter(p =>
-      p.eventDate === filters.date
+      p.dutyDate === filters.date
     );
   }
 
@@ -122,6 +122,10 @@ const removePointsIfApproved = async proof => {
   });
 };
 
+const loadAllProofs = async () => {
+  const snap = await getDocs(collection(db, "ProofRequests"));
+  setProofs(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+};
 
 
   return (
@@ -169,12 +173,14 @@ const removePointsIfApproved = async proof => {
       backgroundColor: "#fff"
     }}
   >
-    <option value="">All Categories</option>
-    <option value="Workshop">Workshop</option>
-    <option value="Internship">Internship</option>
-    <option value="Arts">Arts</option>
-    <option value="Sports">Sports</option>
-    <option value="Other">Other</option>
+   <option value="">All Categories</option>
+<option value="national">National</option>
+<option value="sports">Sports</option>
+<option value="cultural">Cultural</option>
+<option value="professional">Professional</option>
+<option value="entrepreneurship">Entrepreneurship</option>
+<option value="leadership">Leadership</option>
+
   </select>
 
   {/* Date */}
@@ -244,9 +250,26 @@ const removePointsIfApproved = async proof => {
 {[...proofs].reverse().map(p => (
   <div key={p.id} style={{ border: "1px solid #aaa", padding: 12 }}>
     <p><b>{p.studentName}</b></p>
-    <p>{p.category} | {p.purpose}</p>
+    {/* <p>{p.category} | {p.purpose}</p>
     <p>{p.description}</p>
-    <p>Date: {formatDate(p.eventDate)}</p>
+    <p>Date: {formatDate(p.eventDate)}</p> */}
+    <p><b>Student:</b> {p.studentName}</p>
+<p><b>Scheme:</b> {p.scheme}</p>
+<p><b>Purpose:</b> {p.purpose}</p>
+
+{p.dutyType && <p><b>Duty Type:</b> {p.dutyType}</p>}
+{p.dutyDate && <p><b>Duty Date:</b> {p.dutyDate}</p>}
+
+{p.activityHead && <p><b>Activity Head:</b> {p.activityHead}</p>}
+{p.activity && <p><b>Activity:</b> {p.activity}</p>}
+{p.level && <p><b>Level:</b> {p.level}</p>}
+{p.professionalActivity && <p><b>Professional:</b> {p.professionalActivity}</p>}
+{p.leadershipRole && <p><b>Role:</b> {p.leadershipRole}</p>}
+
+{p.prize && <p><b>Prize:</b> {p.prize}</p>}
+
+<p><b>Description:</b> {p.description}</p>
+<p><b>Points:</b> {p.activityPoints}</p>
 
     {p.proofURL && p.proofURL.match(/\.(jpeg|jpg|png|webp)$/i) && (
       <img
@@ -276,7 +299,10 @@ const removePointsIfApproved = async proof => {
     {p.status === "pending" && (
       <>
         <br />
-        <button onClick={() => setSelectedProof(p)}>Approve</button>
+        
+        <button onClick={() => approveProof(p)}>
+  Approve
+</button>
 
         <br />
         <input

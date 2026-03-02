@@ -253,6 +253,7 @@ if (activityHead === "leadership") {
    
   }
 }
+return total || 0;
 }
 
 
@@ -366,6 +367,46 @@ setErrorMsg("");
     border: "1px solid #ccc"
   };
 
+const getMaxPoints = (p) => {
+
+  // SPORTS & CULTURAL
+  if (p.activityHead === "sports" || p.activityHead === "cultural") {
+    return (p.level === "national" || p.level === "international") ? 80 : 60;
+  }
+
+  // NATIONAL
+  if (p.activityHead === "national") {
+    return 60;
+  }
+
+  // PROFESSIONAL
+  if (p.activityHead === "professional") {
+    if (p.professionalActivity === "tech") return 50;
+    if (p.professionalActivity === "mooc") return 50;
+    if (p.professionalActivity === "society") return 40;
+    if (p.professionalActivity === "iit") return 40;
+    if (p.professionalActivity === "papper") return 40;
+    if (p.professionalActivity === "poster presentation") return 30;
+    if (p.professionalActivity === "internship") return 20;
+    if (p.professionalActivity === "industrial") return 10;
+  }
+
+  // ENTREPRENEURSHIP
+  if (p.activityHead === "entrepreneurship") {
+    if (p.activity === "patent_licensed") return 80;
+    if (p.activity === "venture_funding") return 80;
+    if (p.activity === "startup_employment") return 80;
+    return 60;
+  }
+
+  // LEADERSHIP
+  if (p.activityHead === "leadership") {
+    if (p.activity === "elected_representative") return 30;
+    return 40;
+  }
+
+  return 0;
+};
   return (
     <div style={{ maxWidth: 650, margin: "auto", padding: 20 }}>
       {errorMsg && (
@@ -648,15 +689,128 @@ setErrorMsg("");
           borderRadius: 8,
           marginBottom: 12
         }}>
-          <p><b>Scheme:</b> {p.scheme}</p>
+          {/* <p><b>Scheme:</b> {p.scheme}</p>
           <p><b>Purpose:</b> {p.purpose}</p>
-          <p><b>Status:</b> {p.status}</p>
-          {p.activityPoints > 0 && <p><b>Points:</b> {p.activityPoints}</p>}
+          <p><b>Status:</b> {p.status}</p> */}
+          <p><b>Scheme:</b> {p.scheme}</p>
+<p><b>Purpose:</b> {p.purpose}</p>
+
+{p.dutyType && <p><b>Duty Type:</b> {p.dutyType}</p>}
+{p.dutyDate && <p><b>Duty Date:</b> {p.dutyDate}</p>}
+
+{p.activityHead && <p><b>Activity Head:</b> {p.activityHead}</p>}
+{p.activity && <p><b>Activity:</b> {p.activity}</p>}
+{p.level && <p><b>Level:</b> {p.level}</p>}
+{p.professionalActivity && <p><b>Professional:</b> {p.professionalActivity}</p>}
+{p.leadershipRole && <p><b>Role:</b> {p.leadershipRole}</p>}
+
+<p><b>Proof:</b> 
+  <a href={p.proofURL} target="_blank" rel="noreferrer">
+    View Proof
+  </a>
+</p>
+
+<p><b>Status:</b> {p.status}</p>
+{/* {p.activityPoints > 0 && <p><b>Points:</b> {p.activityPoints}</p>} */}
+
+         {p.purpose !== "duty" && (
+  <div
+    style={{
+      marginTop: 12,
+      padding: 16,
+      borderRadius: 12,
+      backgroundColor: "#f0f9ff",
+      border: "1px solid #bae6fd",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+    }}
+  >
+   
+
+    <p
+      style={{
+        margin: "6px 0",
+        fontSize: 14,
+        color: "#0369a1",
+      }}
+    >
+      You will receive{" "}
+      <span style={{ fontWeight: 700, color: "#075985" }}>
+        {p.activityPoints}
+      </span>{" "}
+      points for this proof.
+    </p>
+
+    <p
+      style={{
+        margin: "6px 0",
+        fontSize: 14,
+        color: "#0284c7",
+      }}
+    >
+      Maximum points that can be awarded:{" "}
+      <span style={{ fontWeight: 700, color: "#0c4a6e" }}>
+        {getMaxPoints(p)}
+      </span>
+    </p>
+  </div>
+)}
 
           {p.status === "pending" && (
             <>
-              <button onClick={() => handleEdit(p)}>Edit</button>
-              <button onClick={() => handleDelete(p.id)}>Delete</button>
+             <div
+  style={{
+    display: "flex",
+    gap: 10,
+    marginTop: 12,
+  }}
+>
+  {/* Edit Button */}
+  <button
+    onClick={() => handleEdit(p)}
+    style={{
+      padding: "6px 14px",
+      borderRadius: 8,
+      border: "1px solid #3b82f6",
+      backgroundColor: "#eff6ff",
+      color: "#1d4ed8",
+      fontWeight: 500,
+      cursor: "pointer",
+      transition: "0.2s",
+    }}
+    onMouseOver={(e) => {
+      e.target.style.backgroundColor = "#dbeafe";
+    }}
+    onMouseOut={(e) => {
+      e.target.style.backgroundColor = "#eff6ff";
+    }}
+  >
+    ✏️ Edit
+  </button>
+
+  {/* Delete Button */}
+  <button
+    onClick={() => handleDelete(p.id)}
+    style={{
+      padding: "6px 14px",
+      borderRadius: 8,
+      border: "1px solid #ef4444",
+      backgroundColor: "#fef2f2",
+      color: "#b91c1c",
+      fontWeight: 500,
+      cursor: "pointer",
+      transition: "0.2s",
+    }}
+    onMouseOver={(e) => {
+      e.target.style.backgroundColor = "#fee2e2";
+    }}
+    onMouseOut={(e) => {
+      e.target.style.backgroundColor = "#fef2f2";
+    }}
+  >
+    🗑 Delete
+  </button>
+</div>
+
             </>
           )}
 
