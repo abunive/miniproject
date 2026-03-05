@@ -15,7 +15,7 @@ export default function FacultyProofReview() {
   const [reason, setReason] = useState({});
   const [allProofs, setAllProofs] = useState([]); // original copy
   const [selectedProof, setSelectedProof] = useState(null);
-
+  const [showFilter, setShowFilter] = useState(false);
 
 const [filters, setFilters] = useState({
   studentName: "",
@@ -131,123 +131,152 @@ const loadAllProofs = async () => {
   return (
     <div>
       <h2>Faculty Proof Review</h2>
-      <div style={{ border: "1px solid #ccc", padding: 12, marginBottom: 20 }}>
-  <h4 style={{ marginBottom: 12 }}>Filter Proofs</h4>
-
-<div
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 12,
-    alignItems: "center"
-  }}
->
-  {/* Student Name */}
-  <input
-    placeholder="Student Name"
-    value={filters.studentName}
-    onChange={e =>
-      setFilters({ ...filters, studentName: e.target.value })
-    }
+     
+      <div style={{ marginBottom: 20 }}>
+  <button
+    onClick={() => setShowFilter(true)}
     style={{
-      padding: "8px 10px",
+      padding: "10px 18px",
+      background: "#2563eb",
+      color: "#fff",
+      border: "none",
       borderRadius: 6,
-      border: "1px solid #ccc",
-      minWidth: 180,
-      outline: "none"
-    }}
-  />
-
-  {/* Category */}
-  <select
-    value={filters.category}
-    onChange={e =>
-      setFilters({ ...filters, category: e.target.value })
-    }
-    style={{
-      padding: "8px 10px",
-      borderRadius: 6,
-      border: "1px solid #ccc",
-      minWidth: 200,
-      outline: "none",
-      backgroundColor: "#fff"
+      cursor: "pointer",
+      fontWeight: "600"
     }}
   >
-   <option value="">All Categories</option>
-<option value="national">National</option>
-<option value="sports">Sports</option>
-<option value="cultural">Cultural</option>
-<option value="professional">Professional</option>
-<option value="entrepreneurship">Entrepreneurship</option>
-<option value="leadership">Leadership</option>
+    Open Filters
+  </button>
+</div>
 
-  </select>
-
-  {/* Date */}
-  <input
-    type="date"
-    value={filters.date}
-    onChange={e =>
-      setFilters({ ...filters, date: e.target.value })
-    }
+{showFilter && (
+  <div
     style={{
-      padding: "8px 10px",
-      borderRadius: 6,
-      border: "1px solid #ccc",
-      outline: "none"
+      position: "fixed",
+      right: 0,
+      top: 0,
+      height: "100%",
+      width: 320,
+      background: "#fff",
+      borderLeft: "1px solid #ccc",
+      boxShadow: "-3px 0 10px rgba(0,0,0,0.1)",
+      padding: 20,
+      zIndex: 1000
     }}
-  />
+  >
+    <h3>Filters</h3>
+
+    {/* Student Name */}
+    <label>Student Name</label>
+    <input
+      value={filters.studentName}
+      onChange={e =>
+        setFilters({ ...filters, studentName: e.target.value })
+      }
+      style={{
+        width: "100%",
+        padding: 8,
+        marginBottom: 12,
+        border: "1px solid #ccc",
+        borderRadius: 6
+      }}
+    />
+
+    {/* Category */}
+    <label>Category</label>
+    <select
+      value={filters.category}
+      onChange={e =>
+        setFilters({ ...filters, category: e.target.value })
+      }
+      style={{
+        width: "100%",
+        padding: 8,
+        marginBottom: 12,
+        borderRadius: 6
+      }}
+    >
+      <option value="">All</option>
+      <option value="national">National</option>
+      <option value="sports">Sports</option>
+      <option value="cultural">Cultural</option>
+      <option value="professional">Professional</option>
+      <option value="entrepreneurship">Entrepreneurship</option>
+      <option value="leadership">Leadership</option>
+    </select>
+
+    {/* Date */}
+    <label>Date</label>
+    <input
+      type="date"
+      value={filters.date}
+      onChange={e =>
+        setFilters({ ...filters, date: e.target.value })
+      }
+      style={{
+        width: "100%",
+        padding: 8,
+        marginBottom: 12,
+        borderRadius: 6
+      }}
+    />
+
+    <div style={{ marginTop: 20 }}>
+      <button
+        onClick={() => {
+          applyFilter();
+          setShowFilter(false);
+        }}
+        style={{
+          padding: "8px 14px",
+          background: "#2563eb",
+          color: "#fff",
+          border: "none",
+          borderRadius: 6,
+          marginRight: 10
+        }}
+      >
+        Apply
+      </button>
+
+      <button
+        onClick={() => {
+          resetFilter();
+          setShowFilter(false);
+        }}
+        style={{
+          padding: "8px 14px",
+          background: "#e5e7eb",
+          border: "1px solid #ccc",
+          borderRadius: 6
+        }}
+      >
+        Clear
+      </button>
+
+      <button
+        onClick={() => setShowFilter(false)}
+        style={{
+          marginLeft: 10,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer"
+        }}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
 
-
-</div>
-
- 
-<button
-  onClick={applyFilter}
-  onMouseOver={e => (e.target.style.background = "#1d4ed8")}
-  onMouseOut={e => (e.target.style.background = "#2563eb")}
-  style={{
-    padding: "8px 16px",
-    backgroundColor: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "600",
-    marginTop: 12   // 👈 added
-  }}
->
-  Apply Filter
-</button>
-
-<button
-  onClick={resetFilter}
-  onMouseOver={e => (e.target.style.background = "#d1d5db")}
-  onMouseOut={e => (e.target.style.background = "#e5e7eb")}
-  style={{
-    padding: "8px 16px",
-    backgroundColor: "#e5e7eb",
-    color: "#111",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    cursor: "pointer",
-    marginLeft: 10,
-    marginTop: 12,  // 👈 added
-    fontWeight: "600"
-  }}
->
-  Reset
-</button>
-
-
-
-  
-</div>
-
+     
 
     
-{[...proofs].reverse().map(p => (
+{/* {[...proofs].reverse().map(p => ( */}
+{[...proofs]
+  .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+  .map(p => (
   <div key={p.id} style={{ border: "1px solid #aaa", padding: 12 }}>
     <p><b>{p.studentName}</b></p>
     {/* <p>{p.category} | {p.purpose}</p>

@@ -8,10 +8,11 @@ import {
   where,
   updateDoc,
   deleteDoc,
-  doc,
+  doc,  
   serverTimestamp
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+
 
 export default function StudentProofUpload() {
 
@@ -39,8 +40,22 @@ export default function StudentProofUpload() {
   const [professionalActivity, setProfessionalActivity] = useState("");
   const [leadershipRole, setLeadershipRole] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmType, setConfirmType] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
 
+//   const openConfirm = (type, action) => {
+//   setConfirmType(type);
+//   setConfirmAction(() => action);
+//   setConfirmOpen(true);
+// };
+const openConfirm = (type, action) => {
+  console.log("Popup triggered:", type);
+  setConfirmType(type);
+  setConfirmAction(() => action);
+  setConfirmOpen(true);
+};
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => setUser(u));
@@ -80,11 +95,13 @@ if(level==="college" || level==="zonal" || level==="state"){
 if(prize==="1") bonus=10;
 if(prize==="2") bonus=8;
 if(prize==="3") bonus=5;
+if(prize==="4") bonus=0;
 }
 else{
 if(prize==="1") bonus=20;
 if(prize==="2") bonus=16;
 if(prize==="3") bonus=12;
+if(prize==="4") bonus=0;
 }
 }
 
@@ -448,11 +465,11 @@ const getMaxPoints = (p) => {
       </select>
 
       {/* DUTY LEAVE SECTION */}
+      {(purpose === "duty" ) && (
+        <>
        <label>
       Duty Leave purpose <span style={{ color: "red" }}>*</span>
     </label>
-      {(purpose === "duty" || purpose === "both") && (
-        <>
           <input
             style={inputStyle}
             placeholder="Duty Leave Purpose (sports/arts/workshop...)"
@@ -473,11 +490,11 @@ const getMaxPoints = (p) => {
       )}
 
       {/* ACTIVITY SECTION */}
+      {(purpose === "activity" || purpose === "both") && (
+        <>
        <label>
       Activity Header <span style={{ color: "red" }}>*</span>
     </label>
-      {(purpose === "activity" || purpose === "both") && (
-        <>
           <select style={inputStyle} value={activityHead}
             onChange={e => { setActivityHead(e.target.value); setActivity(""); }}>
             <option value="">Select Activity Head</option>
@@ -528,6 +545,7 @@ const getMaxPoints = (p) => {
               <option value="1">1st Prize</option>
               <option value="2">2nd Prize</option>
               <option value="3">3rd Prize</option>
+               <option value="4">Participation</option>
               </select>
 
             </>
@@ -666,7 +684,7 @@ const getMaxPoints = (p) => {
         onChange={e => setDescription(e.target.value)}
       />
 
-      <button style={{
+      {/* <button style={{
         width: "100%",
         padding: 12,
         background: "#2563eb",
@@ -676,22 +694,38 @@ const getMaxPoints = (p) => {
       }}
         onClick={submitProof}>
         {editId ? "Update" : "Submit"}
-      </button>
+      </button> */}
+      <button
+  style={{
+    width: "100%",
+    padding: 12,
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6
+  }}
+  onClick={(e) => {
+    e.preventDefault();
+    openConfirm(editId ? "update" : "submit", submitProof);
+  }}
+>
+  {editId ? "Update" : "Submit"}
+</button>
 
       <hr />
 
       <h3>My Submissions</h3>
 
-      {[...myProofs].reverse().map(p => (
+      {[...myProofs]
+.sort((a,b)=>b.createdAt?.seconds - a.createdAt?.seconds)
+.map(p => (
         <div key={p.id} style={{
           border: "1px solid #ddd",
           padding: 12,
           borderRadius: 8,
           marginBottom: 12
         }}>
-          {/* <p><b>Scheme:</b> {p.scheme}</p>
-          <p><b>Purpose:</b> {p.purpose}</p>
-          <p><b>Status:</b> {p.status}</p> */}
+        
           <p><b>Scheme:</b> {p.scheme}</p>
 <p><b>Purpose:</b> {p.purpose}</p>
 
@@ -709,6 +743,7 @@ const getMaxPoints = (p) => {
     View Proof
   </a>
 </p>
+<p><b>Description</b>{p.description}</p>
 
 <p><b>Status:</b> {p.status}</p>
 {/* {p.activityPoints > 0 && <p><b>Points:</b> {p.activityPoints}</p>} */}
@@ -788,27 +823,31 @@ const getMaxPoints = (p) => {
   </button>
 
   {/* Delete Button */}
-  <button
-    onClick={() => handleDelete(p.id)}
-    style={{
-      padding: "6px 14px",
-      borderRadius: 8,
-      border: "1px solid #ef4444",
-      backgroundColor: "#fef2f2",
-      color: "#b91c1c",
-      fontWeight: 500,
-      cursor: "pointer",
-      transition: "0.2s",
-    }}
-    onMouseOver={(e) => {
-      e.target.style.backgroundColor = "#fee2e2";
-    }}
-    onMouseOut={(e) => {
-      e.target.style.backgroundColor = "#fef2f2";
-    }}
-  >
-    🗑 Delete
-  </button>
+ <button
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openConfirm("delete", () => handleDelete(p.id));
+  }}
+  style={{
+    padding: "6px 14px",
+    borderRadius: 8,
+    border: "1px solid #ef4444",
+    backgroundColor: "#fef2f2",
+    color: "#b91c1c",
+    fontWeight: 500,
+    cursor: "pointer",
+    transition: "0.2s",
+  }}
+  onMouseOver={(e) => {
+    e.target.style.backgroundColor = "#fee2e2";
+  }}
+  onMouseOut={(e) => {
+    e.target.style.backgroundColor = "#fef2f2";
+  }}
+>
+  🗑 Delete
+</button>
 </div>
 
             </>
@@ -817,7 +856,71 @@ const getMaxPoints = (p) => {
           {p.rejectReason && <p style={{ color: "red" }}>{p.rejectReason}</p>}
         </div>
       ))}
+    {confirmOpen && (
+  <div style={{
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.3)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000
+  }}>
 
+    <div style={{
+      background: "#fff",
+      padding: 20,
+      borderRadius: 10,
+      width: 320,
+      boxShadow: "0 5px 20px rgba(0,0,0,0.2)",
+      textAlign: "center"
+    }}>
+
+      <p style={{ marginBottom: 20, fontWeight: 500 }}>
+        Do you really want to {confirmType} this proof?
+      </p>
+
+      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+
+        <button
+          onClick={() => {
+             if (confirmAction) confirmAction();
+          setConfirmOpen(false);
+          }}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 6,
+            border: "none",
+            background: "#2563eb",
+            color: "#fff",
+            cursor: "pointer"
+          }}
+        >
+          Yes
+        </button>
+
+        <button
+          onClick={() => setConfirmOpen(false)}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+            background: "#f3f4f6",
+            cursor: "pointer"
+          }}
+        >
+          No
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+)}
     </div>
   );
-}
+}  
+
