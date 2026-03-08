@@ -50,6 +50,7 @@ export default function StudentProofUpload() {
 //   setConfirmAction(() => action);
 //   setConfirmOpen(true);
 // };
+
 const openConfirm = (type, action) => {
   console.log("Popup triggered:", type);
   setConfirmType(type);
@@ -376,13 +377,29 @@ setErrorMsg("");
     loadProofs(user.uid);
   };
 
+  // const inputStyle = {
+  //   width: "100%",
+  //   padding: 10,
+  //   marginBottom: 12,
+  //   borderRadius: 6,
+  //   border: "1px solid #ccc"
+  // };
   const inputStyle = {
-    width: "100%",
-    padding: 10,
-    marginBottom: 12,
-    borderRadius: 6,
-    border: "1px solid #ccc"
-  };
+  width: "100%",
+  padding: "12px 14px",
+  marginTop: "6px",
+  marginBottom: "14px",
+  borderRadius: "8px",
+  border: "1px solid #d0d5dd",
+  fontSize: "14px",
+  backgroundColor: "#ffffff",
+  color: "#333",
+  outline: "none",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+};
+
 
 const getMaxPoints = (p) => {
 
@@ -393,6 +410,7 @@ const getMaxPoints = (p) => {
 
   // NATIONAL
   if (p.activityHead === "national") {
+    
     return 60;
   }
 
@@ -684,17 +702,7 @@ const getMaxPoints = (p) => {
         onChange={e => setDescription(e.target.value)}
       />
 
-      {/* <button style={{
-        width: "100%",
-        padding: 12,
-        background: "#2563eb",
-        color: "#fff",
-        border: "none",
-        borderRadius: 6
-      }}
-        onClick={submitProof}>
-        {editId ? "Update" : "Submit"}
-      </button> */}
+    
       <button
   style={{
     width: "100%",
@@ -744,8 +752,24 @@ const getMaxPoints = (p) => {
   </a>
 </p>
 <p><b>Description</b>{p.description}</p>
+<p>
+  <b>Status:</b>{" "}
+  <span
+    style={{
+      color:
+        p.status === "approved"
+          ? "green"
+          : p.status === "rejected"
+          ? "red"
+          : "blue",
+      fontWeight: "bold",
+    }}
+  >
+    {p.status}
+  </span>
+</p>
 
-<p><b>Status:</b> {p.status}</p>
+
 {/* {p.activityPoints > 0 && <p><b>Points:</b> {p.activityPoints}</p>} */}
 
          {p.purpose !== "duty" && (
@@ -916,6 +940,7 @@ const getMaxPoints = (p) => {
         </button>
 
       </div>
+      
     </div>
 
   </div>

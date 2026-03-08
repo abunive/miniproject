@@ -285,6 +285,7 @@ const createEvent = async () => {
         <button onClick={() => setActiveTab("users")}>Users</button>
         <button onClick={() => setActiveTab("events")}>Events</button>
         <button onClick={() => setActiveTab("proofs")}>Proof Requests</button>
+        <button onClick={() => setActiveTab("notifications")}>Notifications</button>
         <div style={{ flex: 1 }} />
         <button onClick={logout} style={{ background: "red", color: "#fff" }}>
           Logout
@@ -562,6 +563,7 @@ const createEvent = async () => {
 
         {/* PROOF REQUESTS */}
         {activeTab === "proofs" && <FacultyProofReview />}
+        {activeTab === "notifications" && <FacultyNotifications />}
       </div>
     </div>
   );

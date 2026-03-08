@@ -98,7 +98,9 @@ export default function StudentDashboard() {
         <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button onClick={() => setActiveTab("events")}>Events</button>
         <button onClick={() => setActiveTab("proof")}>Upload Proof</button>
-
+<button onClick={() => setActiveTab("notifications")}>
+  Notifications
+</button>
 
         <div style={{ flex: 1 }} />
 
@@ -161,7 +163,7 @@ export default function StudentDashboard() {
           </>
         )}
        {activeTab === "proof" && <StudentProofUpload user={auth.currentUser} />}
-
+        
 
       </div>
     </div>

@@ -34,6 +34,8 @@ import AdminDashboard from "./AdminDashboard";
 import StudentDashboard from "./StudentDashboard";
 import FacultyDashboard from "./FacultyDashboard";
 import OrganizerDashboard from "./OrganizerDashboard";
+import FacultyNotifications from "./FacultyNotifications";
+import StudentNotifications from "./StudentNotifications";
 import UserLogin from "./UserLogin";
 // import Layout from "./Layout";
 import "./login.css";
@@ -50,6 +52,8 @@ function App() {
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
         <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
+        <Route path="/faculty-notifications" element={<FacultyNotifications />} />
+<Route path="/student-notifications" element={<StudentNotifications />} />
       {/* </Route> */}
     </Routes>
   );

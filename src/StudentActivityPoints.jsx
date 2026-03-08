@@ -66,34 +66,46 @@ export default function StudentActivityPoints({ studentId }) {
       </h3>
 
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {proofs.map((p, i) => (
-          <li
-            key={i}
-            style={{
-              padding: "10px 12px",
-              marginBottom: "8px",
-              borderRadius: "6px",
-              backgroundColor: "#ffffff",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              border: "1px solid #eee",
-            }}
-          >
-            <span style={{ fontWeight: "600", color: "#34495e" }}>
-              {p.activityName}
-            </span>
+        {proofs.map((p, i) => {
 
-            <span
+          const eventName =
+            p.activity ||
+            p.activityName ||
+            p.professionalActivity ||
+            p.leadershipRole ||
+            p.dutyType ||
+            p.purpose ||
+            "Activity";
+
+          return (
+            <li
+              key={i}
               style={{
-                fontWeight: "bold",
-                color: "#2980b9",
+                padding: "10px 12px",
+                marginBottom: "8px",
+                borderRadius: "6px",
+                backgroundColor: "#ffffff",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: "1px solid #eee",
               }}
             >
-              {p.activityPoints} pts
-            </span>
-          </li>
-        ))}
+              <span style={{ fontWeight: "600", color: "#34495e" }}>
+                {eventName}
+              </span>
+
+              <span
+                style={{
+                  fontWeight: "bold",
+                  color: "#2980b9",
+                }}
+              >
+                {p.activityPoints} pts
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   getDoc,
   setDoc
 } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 
 export default function FacultyAddActivityPoints({ proof, onClose, onDone }) {
   const [activityName, setActivityName] = useState("");
@@ -27,11 +28,30 @@ const approveWithPoints = async () => {
     const pts = Number(points);
 
     // 1️⃣ Update Proof
-    await updateDoc(doc(db, "ProofRequests", proof.id), {
+    // await updateDoc(doc(db, "ProofRequests", proof.id), {
+    //   status: "approved",
+    //   activityName,
+    //   activityPoints: pts
+    // });
+     await updateDoc(doc(db, "ProofRequests", proof.id), {
       status: "approved",
       activityName,
       activityPoints: pts
     });
+
+       // 2️⃣ Send notification to student
+    await addDoc(collection(db, "Notifications"), {
+      receiverRole: "student",
+      receiverId: proof.studentId,
+      proofId: proof.id,
+      proofName: activityName,
+      description: proof.description || "",
+      status: "approved",
+      rejectReason: "",
+      seen: false,
+      createdAt: new Date()
+    });
+    
 
     // 2️⃣ Add points to student
     const studentRef = doc(db, "StudentPoints", proof.studentId);
