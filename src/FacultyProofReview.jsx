@@ -4,13 +4,14 @@ import {
   collection,
   getDocs,
   updateDoc,
-  doc
+  doc,
+  getDoc
 } from "firebase/firestore";
 import FacultyAddActivityPoints from "./FacultyAddActivityPoints";
 import { addDoc } from "firebase/firestore";
 
 
-export default function FacultyProofReview() {
+export default function FacultyProofReview({ selectedProofId }) {
   const [proofs, setProofs] = useState([]);
   const [reason, setReason] = useState({});
   const [allProofs, setAllProofs] = useState([]); // original copy
@@ -43,37 +44,111 @@ setAllProofs(data);
     loadProofs();
   }, []);
 
-  const approveProof = async p => {
-   await addDoc(collection(db, "Notifications"), {
-  receiverRole: "student",
-  receiverId: p.studentId,
-  proofName: proof.proofName,
-  description: "Your proof has been approved",
-  status: "approved",
-  seen: false
-});
+//   const approveProof = async p => {
+//    await addDoc(collection(db, "Notifications"), {
+//   receiverRole: "student",
+//   receiverId: p.studentId,
+//   proofName: proof.proofName,
+//   description: "Your proof has been approved",
+//   status: "approved",
+//   seen: false
+// });
   
-    loadProofs();
-  };
+//     loadProofs();
+//   };
 
-  const rejectProof = async p => {
+
+const approveProof = async (p) => {
+  try {
+
+    // update proof status
+    await updateDoc(doc(db, "ProofRequests", id), {
+      status: "approved"
+    });
+
+    await updateDoc(doc(db,"Notifications",notificationId),{
+  verified:true
+});
+
+await updateDoc(doc(db,"Notifications",notificationId),{
+  verified:true
+});
+
+
+    // send notification
+    await addDoc(collection(db, "Notifications"), {
+      receiverRole: "student",
+      receiverId: p.studentId,
+      // proofName: p.proofName || "Proof",
+       purpose: p.purpose,
+      description: "Your proof has been approved",
+      status: "approved",
+      seen: false,
+       createdAt: serverTimestamp()
+    });
+
+    loadProofs();
+
+  } catch (err) {
+    console.error("Approve error:", err);
+  }
+};
+
+
+//   const rejectProof = async p => {
+//     if (!reason[p.id]) {
+//       alert("Enter reject reason");
+//       return;
+//     }
+
+//   await addDoc(collection(db, "Notifications"), {
+//   receiverRole: "student",
+//   receiverId: proof.studentId,
+//   proofName: proof.proofName,
+//   description: "Your proof was rejected",
+//   status: "rejected",
+//   rejectReason: reason,
+//   seen: false
+// });
+
+//     loadProofs();
+//   };
+
+
+
+const rejectProof = async (p) => {
+  try {
+
     if (!reason[p.id]) {
-      alert("Enter reject reason");
+      setMsgPopup("Enter reject reason");
       return;
     }
 
-  await addDoc(collection(db, "Notifications"), {
-  receiverRole: "student",
-  receiverId: proof.studentId,
-  proofName: proof.proofName,
-  description: "Your proof was rejected",
-  status: "rejected",
-  rejectReason: reason,
-  seen: false
-});
+    await updateDoc(doc(db, "ProofRequests", p.id), {
+      status: "rejected",
+      rejectReason: reason[p.id]
+    });
+
+    await addDoc(collection(db, "Notifications"), {
+      receiverRole: "student",
+      receiverId: p.studentId,
+      // proofName: p.proofName || "Proof",
+       purpose: p.purpose,
+      description: "Your proof was rejected",
+      status: "rejected",
+      rejectReason: reason[p.id],
+      seen: false,
+       createdAt: serverTimestamp()
+    });
 
     loadProofs();
-  };
+
+  } catch (err) {
+    console.error("Reject error:", err);
+  }
+};
+
+
   const formatDate = (date) => {
   if (!date) return "N/A";
   return new Date(date).toLocaleDateString();

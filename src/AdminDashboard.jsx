@@ -16,6 +16,14 @@ import {createUserWithEmailAndPassword,signOut,signInWithEmailAndPassword} from 
 import { setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { query, orderBy } from "firebase/firestore";
+import ReportsAnalyticsDashboard from "./ReportsAnalyticsDashboard";
+
+export default function AdminDashboard() {
+
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [users, setUsers] = useState([]);
+  const [events, setEvents] = useState([]);
+
 
 
 
@@ -38,6 +46,7 @@ export default function AdminDashboard() {
 const [newUser, setNewUser] = useState({
   name: "",
   username: "",
+    password: "",
   role: "student",
   isActive: true,
   canAddEvent: false
@@ -292,6 +301,7 @@ await addDoc(collection(db, "Events"), {
         <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button onClick={() => setActiveTab("users")}>Manage Users</button>
         <button onClick={() => setActiveTab("events")}>Manage Events</button>
+        <button onClick={() => setActiveTab("reports")}>Reports</button>
          <div style={{ flex: 1 }}></div>
          <button
     onClick={handleLogout}
@@ -715,15 +725,23 @@ await addDoc(collection(db, "Events"), {
       </button>
     </div>
   </div>
+  
 ))}
 
 
+          </>
+        )}
+          {/* REPORTS */}
+        {activeTab === "reports" && (
+          <>
+            <ReportsAnalyticsDashboard />
           </>
         )}
       </div>
     </div>
   );
 }
+
 
 const sidebar = {
   width: 220,

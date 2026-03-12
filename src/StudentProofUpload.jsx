@@ -275,67 +275,163 @@ return total || 0;
 }
 
 
+const submitProof = async () => {
 
+  if (
+    !scheme ||
+    !purpose ||
+    !proofURL ||
+    ((purpose === "duty" || purpose === "both") && (!dutyType || !dutyDate)) ||
+    ((purpose === "activity" || purpose === "both") &&
+      (!activityHead || (activityHead === "leadership" && !leadershipRole)))
+  ) {
+    setErrorMsg("⚠ Please fill all required fields.");
+    return;
+  }
 
-  const submitProof = async () => {
+  setErrorMsg("");
 
-    // if (!scheme || !purpose || !proofURL) {
-    //   alert("All mandatory fields must be filled");
-    //   return;
-    // }
-    // VALIDATION
-if (
-  !scheme ||
-  !purpose ||
-  !proofURL ||
-  ((purpose === "duty" || purpose === "both") && (!dutyType || !dutyDate)) ||
-  ((purpose === "activity" || purpose === "both") && (
-    !activityHead ||
-    (activityHead === "leadership" && !leadershipRole)
-  ))
-) {
-  setErrorMsg("⚠ Please fill all required fields.");
-  return;
-}
-
-setErrorMsg("");
+  try {
 
     const data = {
       studentId: user.uid,
       studentName: user.email,
       scheme,
       purpose,
-
       dutyType,
       dutyDate,
-
       activityHead,
       activity,
       level,
       duration,
       professionalActivity,
-
-
       proofURL,
       description,
       prize,
-
       status: "pending",
       activityPoints: calculatePoints(),
-      rejectReason: "",
-      createdAt: serverTimestamp()
+      rejectReason: ""
     };
 
+    let proofId = "";
+
     if (editId) {
+
+      // UPDATE EXISTING PROOF
       await updateDoc(doc(db, "ProofRequests", editId), data);
+      proofId = editId;
+
       setEditId(null);
+
     } else {
-      await addDoc(collection(db, "ProofRequests"), data);
+
+      // ADD NEW PROOF
+      const proofRef = await addDoc(collection(db, "ProofRequests"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
+
+      proofId = proofRef.id;
     }
+
+    // 🔔 SEND NOTIFICATION TO FACULTY
+    await addDoc(collection(db, "Notifications"), {
+      receiverRole: "faculty",
+      studentId: user.uid,
+      studentName: user.email,
+      purpose,
+      description,
+      proofId,
+      seen: false,
+      verified: false,
+      createdAt: serverTimestamp()
+    });
 
     resetForm();
     loadProofs(user.uid);
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Error submitting proof: " + error.message);
+  }
+};
+
+
+
+//   const submitProof = async () => {
+
+//     // if (!scheme || !purpose || !proofURL) {
+//     //   alert("All mandatory fields must be filled");
+//     //   return;
+//     // }
+//     // VALIDATION
+// if (
+//   !scheme ||
+//   !purpose ||
+//   !proofURL ||
+//   ((purpose === "duty" || purpose === "both") && (!dutyType || !dutyDate)) ||
+//   ((purpose === "activity" || purpose === "both") && (
+//     !activityHead ||
+//     (activityHead === "leadership" && !leadershipRole)
+//   ))
+// ) {
+//   setErrorMsg("⚠ Please fill all required fields.");
+//   return;
+// }
+
+// setErrorMsg("");
+
+//     const data = {
+//       studentId: user.uid,
+//       studentName: user.email,
+//       scheme,
+//       purpose,
+
+//       dutyType,
+//       dutyDate,
+
+//       activityHead,
+//       activity,
+//       level,
+//       duration,
+//       professionalActivity,
+
+
+//       proofURL,
+//       description,
+//       prize,
+
+//       status: "pending",
+//       activityPoints: calculatePoints(),
+//       rejectReason: "",
+//       createdAt: serverTimestamp()
+//     };
+ 
+
+//     if (editId) {
+//       await updateDoc(doc(db, "ProofRequests", editId), data);
+//        proofId = editId;
+//       setEditId(null);
+//     } else {
+//         const proofRef = await addDoc(collection(db, "ProofRequests"), data);
+//        proofId = proofRef.id;
+//     }
+       
+// await addDoc(collection(db, "Notifications"), {
+//   receiverRole: "faculty",
+//   studentId: user.uid,
+//   studentName: user.displayName,
+//   purpose: purpose,
+//   description: description,
+//   proofId: proofRef.id,
+//   seen: false,
+//   createdAt: serverTimestamp()
+// });
+    
+
+//     resetForm();
+//     loadProofs(user.uid);
+//   };
 
   const resetForm = () => {
     setScheme("");

@@ -1,64 +1,66 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
 
 export default function FacultyNotifications() {
+
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        const q = query(
-          collection(db, "Notifications"),
-          where("receiverRole", "==", "faculty"),
-          where("status", "==", "pending")
-        );
-
-        const snap = await getDocs(q);
-
-        const list = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        setNotifications(list);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     loadNotifications();
   }, []);
 
+  const loadNotifications = async () => {
+
+    const q = query(
+      collection(db, "Notifications"),
+      where("receiverRole", "==", "faculty"),
+      where("seen", "==", true)
+    );
+
+    const snap = await getDocs(q);
+
+    const list = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setNotifications(list);
+  };
+
   return (
     <div>
-      <h2>Pending Proof Notifications</h2>
 
-      {notifications.length === 0 && <p>No pending notifications</p>}
+      <h2>Notification History</h2>
 
       {notifications.map(n => (
-        <div key={n.id} style={card}>
-          <h3>{n.studentName}</h3>
 
-          <p>
-            <b>Purpose:</b> {n.purpose}
-          </p>
+        <div
+          key={n.id}
+          style={{
+            border: "1px solid #ccc",
+            padding: 15,
+            marginBottom: 10,
+            borderRadius: 8,
+            background: "#f3f4f6"
+          }}
+        >
 
-          <p>{n.description}</p>
+          <b>{n.studentName}</b> uploaded proof
 
-          <p style={{ color: "blue", fontWeight: "bold" }}>
-            Status: Pending
-          </p>
+          <p><b>Purpose:</b> {n.purpose}</p>
+
+          <p><b>Description:</b> {n.description}</p>
+
         </div>
+
       ))}
+
     </div>
   );
 }
-
-const card = {
-  border: "1px solid #ccc",
-  padding: 15,
-  marginBottom: 10,
-  borderRadius: 8,
-  background: "#fff"
-};

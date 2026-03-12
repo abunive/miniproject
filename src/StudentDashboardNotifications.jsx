@@ -4,10 +4,12 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  updateDoc,
+  doc
 } from "firebase/firestore";
 
-export default function StudentNotifications({ studentId }) {
+export default function StudentDashboardNotifications({ studentId }) {
 
   const [notifications, setNotifications] = useState([]);
 
@@ -21,7 +23,7 @@ export default function StudentNotifications({ studentId }) {
         collection(db, "Notifications"),
         where("receiverRole", "==", "student"),
         where("receiverId", "==", studentId),
-        where("seen", "==", true)
+        where("seen", "==", false)
       );
 
       const snap = await getDocs(q);
@@ -41,26 +43,39 @@ export default function StudentNotifications({ studentId }) {
 
 
 
+  const openNotification = async (n) => {
+
+    await updateDoc(doc(db, "Notifications", n.id), {
+      seen: true
+    });
+
+    window.location.href = `/student-dashboard?proof=${n.proofId}`;
+  };
+
+
+
   return (
 
-    <div>
+    <div style={{ marginBottom: 25 }}>
 
-      <h2>📜 Notification History</h2>
+      <h2>🔔 New Notifications</h2>
 
       {notifications.length === 0 && (
-        <p>No notifications</p>
+        <p>No new notifications</p>
       )}
 
       {notifications.map(n => (
 
         <div
           key={n.id}
+          onClick={() => openNotification(n)}
           style={{
             border: "1px solid #ddd",
             padding: 15,
             borderRadius: 8,
             marginBottom: 10,
-            background: "#f3f4f6"
+            cursor: "pointer",
+            background: "#dbeafe"
           }}
         >
 

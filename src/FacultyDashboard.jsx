@@ -18,6 +18,8 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import FacultyProofReview from "./FacultyProofReview";
+import FacultyNotifications from "./FacultyNotifications";
+import FacultyDashboardNotifications from "./FacultyDashboardNotifications";
 
 
 import { Timestamp } from "firebase/firestore";
@@ -37,9 +39,19 @@ export default function FacultyDashboard() {
   const [posterFile, setPosterFile] = useState(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState("");
-
-
   const functions = getFunctions();
+  const [selectedProofId, setSelectedProofId] = useState(null);
+  useEffect(() => {
+
+  const params = new URLSearchParams(window.location.search);
+  const proofId = params.get("proof");
+
+  if (proofId) {
+    setActiveTab("proofs");
+    setSelectedProofId(proofId);
+  }
+
+}, []);
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -294,12 +306,22 @@ const createEvent = async () => {
 
       {/* CONTENT */}
       <div style={{ flex: 1, padding: 30 }}>
-        {activeTab === "dashboard" && (
+        {/* {activeTab === "dashboard" && (
           <>
             <h1>Welcome {facultyName}</h1>
             <p>Faculty dashboard</p>
           </>
-        )}
+        )} */}
+{activeTab === "dashboard" && (
+  <>
+    <h1>Welcome {facultyName}</h1>
+    <p>Faculty dashboard</p>
+
+    {/* 🔔 NEW PROOF UPLOAD NOTIFICATIONS */}
+    <FacultyDashboardNotifications />
+  </>
+)}
+
 
         {/* USERS */}
         {activeTab === "users" && (
@@ -562,7 +584,10 @@ const createEvent = async () => {
         )}
 
         {/* PROOF REQUESTS */}
-        {activeTab === "proofs" && <FacultyProofReview />}
+        {/* {activeTab === "proofs" && <FacultyProofReview />} */}
+        {activeTab === "proofs" && (
+  <FacultyProofReview selectedProofId={selectedProofId} />
+)}
         {activeTab === "notifications" && <FacultyNotifications />}
       </div>
     </div>

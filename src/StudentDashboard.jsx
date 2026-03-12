@@ -5,9 +5,8 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import StudentProofUpload from "./StudentProofUpload";
 import StudentActivityPoints from "./StudentActivityPoints";
 import useConfirmBackNavigation from "./useConfirmBackNavigation";
-
-
-
+import StudentDashboardNotifications from "./StudentDashboardNotifications";
+import StudentNotifications from "./StudentNotifications";
 
 export default function StudentDashboard() {
     useConfirmBackNavigation(
@@ -18,6 +17,18 @@ export default function StudentDashboard() {
   const [studentName, setStudentName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedProofId, setSelectedProofId] = useState(null);
+
+useEffect(() => {
+
+  const params = new URLSearchParams(window.location.search);
+  const proofId = params.get("proof");
+
+  if (proofId) {
+    setSelectedProofId(proofId);
+  }
+
+}, []);
 
   /* 🔐 AUTH CHECK */
   useEffect(() => {
@@ -122,11 +133,17 @@ export default function StudentDashboard() {
   <>
     <h1>Student Dashboard</h1>
     <h2>Welcome, <b>{studentName}</b></h2>
+   
 
     {/* ✅ SHOW ACTIVITY POINTS */}
     {auth.currentUser && (
       <StudentActivityPoints studentId={auth.currentUser.uid} />
     )}
+
+    {auth.currentUser && (
+  <StudentDashboardNotifications studentId={auth.currentUser.uid} />
+)}
+    
   </>
 )}
 
@@ -163,6 +180,15 @@ export default function StudentDashboard() {
           </>
         )}
        {activeTab === "proof" && <StudentProofUpload user={auth.currentUser} />}
+       {activeTab === "notifications" && (
+  <>
+    {auth.currentUser && (
+      <StudentNotifications studentId={auth.currentUser.uid} />
+    )}
+  </>
+)}
+      
+
         
 
       </div>
