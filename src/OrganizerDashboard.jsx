@@ -21,7 +21,7 @@ import { query, orderBy } from "firebase/firestore";
 
 
 
-export default function organizerDashboard() {
+export default function OrganizerDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [events, setEvents] = useState([]);
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -99,25 +99,54 @@ export default function organizerDashboard() {
   }, []);
 
 
+  
   // const loadEvents = async () => {
-  //   const snap = await getDocs(collection(db, "Events"));
-  //   setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-  // };
+  // const q = query(
+  //   collection(db, "Events"),
+  //   orderBy("createdAt", "desc") // latest first
+  // );
   const loadEvents = async () => {
-  const q = query(
-    collection(db, "Events"),
-    orderBy("createdAt", "desc") // latest first
-  );
+  try {
+    const q = query(collection(db, "Events"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
 
-  const snap = await getDocs(q);
+    const list = [];
 
-  setEvents(
-    snap.docs.map(d => ({
-      id: d.id,
-      ...d.data()
-    }))
-  );
+    for (const d of snap.docs) {
+      const data = { id: d.id, ...d.data() };
+
+      let interestCount = 0;
+
+      try {
+        const likeSnap = await getDocs(
+          collection(db, "Events", d.id, "Likes")
+        );
+        interestCount = likeSnap.size;
+      } catch (e) {
+        console.log("likes skipped");
+      }
+
+      list.push({
+        ...data,
+        interestCount
+      });
+    }
+
+    setEvents(list);
+  } catch (err) {
+    console.error(err);
+  }
 };
+
+//   const snap = await getDocs(q);
+
+//   setEvents(
+//     snap.docs.map(d => ({
+//       id: d.id,
+//       ...d.data()
+//     }))
+//   );
+// };
 
 
  
@@ -243,6 +272,7 @@ export default function organizerDashboard() {
   onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
 />
 
+
 <input
   style={inputStyle}
   placeholder="Poster URL"
@@ -332,36 +362,7 @@ export default function organizerDashboard() {
     </div>
   )}
 
-{/* 
-      {events.map(e => (
-    <div key={e.id} style={card}>
-      <h3>{String(e.title || "No Title")}</h3>
 
-      <p><b>Event ID:</b> {String(e.eventid || "N/A")}</p>
-      <p><b>Date:</b> {String(e.date || "N/A")}</p>
-      <p><b>Status:</b> {String(e.status || "pending")}</p>
-      <p><b>Description:</b> {String(e.description || "No description")}</p>
-
-      {e.posterURL && (
-        <img
-          src={e.posterURL}
-          alt="poster"
-          style={{ width: "100%", maxWidth: 300, marginTop: 10, borderRadius: 6 }}
-        />
-      )}
-
-      <br /><br />
-      <button onClick={() => setEditingEvent(e)} style={{ marginLeft: 10 }}>
-        Edit
-      </button>
-      <button
-        onClick={() => deleteEvent(e.id)}
-        style={{ marginLeft: 10 }}
-      >
-        Delete
-      </button>
-    </div>
-  ))} */}
 
   {events.map(e => (
   <div key={e.id} style={eventCard}>
@@ -397,19 +398,10 @@ export default function organizerDashboard() {
     </p>
 
     <p style={{ color: "#374151" }}>{e.description}</p>
-
-    {/* {e.posterURL && (
-      <img
-        src={e.posterURL}
-        alt="poster"
-        style={{
-          width: "100%",
-          maxWidth: 320,
-          borderRadius: 10,
-          marginTop: 10
-        }}
-      />
-    )} */}
+<p>
+  <b>Interested Students:</b> {e.interestCount || 0}
+</p>
+   
     {e.posterURL && (
   <div style={imageWrapper}>
     <span style={{

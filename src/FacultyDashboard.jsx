@@ -20,7 +20,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import FacultyProofReview from "./FacultyProofReview";
 import FacultyNotifications from "./FacultyNotifications";
 import FacultyDashboardNotifications from "./FacultyDashboardNotifications";
-
+import FacultyViewEvents from "./FacultyViewEvents";
 
 import { Timestamp } from "firebase/firestore";
 
@@ -427,6 +427,7 @@ const createEvent = async () => {
         )}
 
         {/* EVENTS */}
+        {activeTab === "events" && <FacultyViewEvents/>}
         {activeTab === "events" && (
           <>
             <h2>Manage Events</h2>
@@ -530,6 +531,9 @@ const createEvent = async () => {
     <p>
       <b>Date:</b> {formatDate(e.date)}
     </p>
+    <p>
+  <b>Interested Students:</b> {e.interestCount || 0}
+</p>
 
     <p>
       <b>Status:</b>{" "}

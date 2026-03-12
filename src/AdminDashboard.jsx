@@ -16,14 +16,8 @@ import {createUserWithEmailAndPassword,signOut,signInWithEmailAndPassword} from 
 import { setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { query, orderBy } from "firebase/firestore";
-import ReportsAnalyticsDashboard from "./ReportsAnalyticsDashboard";
-
-export default function AdminDashboard() {
-
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [users, setUsers] = useState([]);
-  const [events, setEvents] = useState([]);
-
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 
 
@@ -41,12 +35,63 @@ export default function AdminDashboard() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [adminName, setLoggedInName] = useState("");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const facultyCount = users.filter(u => u.role === "faculty").length;
+const studentCount = users.filter(u => u.role === "student").length;
+const organizerCount = users.filter(u => u.role === "organizer").length;
+const downloadUsersPDF = () => {
+
+  if (!window.confirm("Download Users Report PDF?")) return;
+
+  const doc = new jsPDF();
+
+  doc.text("Users Report", 14, 15);
+
+  const tableData = users.map(u => [
+    u.name || "",
+    u.username || "",
+    u.role || "",
+    u.isActive ? "Active" : "Inactive",
+    u.canAddEvent ? "Yes" : "No"
+  ]);
+
+  autoTable(doc, {
+    head: [["Name", "Email", "Role", "Status", "Can Add Event"]],
+    body: tableData,
+    startY: 25
+  });
+
+  doc.save("users-report.pdf");
+};
+const downloadEventsPDF = () => {
+
+  if (!window.confirm("Download Events Report PDF?")) return;
+
+  const doc = new jsPDF();
+
+  doc.text("Events Report", 14, 15);
+
+  const tableData = events.map(e => [
+    e.eventid || "",
+    e.title || "",
+    e.date
+      ? new Date(e.date.seconds * 1000).toLocaleDateString()
+      : "",
+    e.status || ""
+  ]);
+
+  autoTable(doc, {
+    head: [["Event ID", "Title", "Date", "Status"]],
+    body: tableData,
+    startY: 25
+  });
+
+  doc.save("events-report.pdf");
+};
 
 
 const [newUser, setNewUser] = useState({
   name: "",
   username: "",
-    password: "",
   role: "student",
   isActive: true,
   canAddEvent: false
@@ -301,7 +346,6 @@ await addDoc(collection(db, "Events"), {
         <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button onClick={() => setActiveTab("users")}>Manage Users</button>
         <button onClick={() => setActiveTab("events")}>Manage Events</button>
-        <button onClick={() => setActiveTab("reports")}>Reports</button>
          <div style={{ flex: 1 }}></div>
          <button
     onClick={handleLogout}
@@ -322,10 +366,52 @@ await addDoc(collection(db, "Events"), {
       <div style={{ flex: 1, padding: 30 }}>
         {activeTab === "dashboard" && (
           <>
-            <h1>Admin Dashboard</h1>
-             <h2>Welcome,<b>{adminName}</b></h2><br />
-            <p>Total Users: {users.length}</p>
-            <p>Total Events: {events.length}</p>
+           <>
+  <h1>Admin Dashboard</h1>
+  <h2>Welcome, <b>{adminName}</b></h2>
+
+  <div style={{display:"flex", gap:30, marginTop:20}}>
+
+    <div style={analyticsCard}>
+      <h3>Students</h3>
+      <p>{studentCount}</p>
+    </div>
+
+    <div style={analyticsCard}>
+      <h3>Faculty</h3>
+      <p>{facultyCount}</p>
+    </div>
+
+    <div style={analyticsCard}>
+      <h3>Organizers</h3>
+      <p>{organizerCount}</p>
+    </div>
+
+    <div style={analyticsCard}>
+      <h3>Total Events</h3>
+      <p>{events.length}</p>
+    </div>
+
+  </div>
+
+  <div style={{marginTop:30}}>
+
+    <button
+      style={primaryBtn}
+      onClick={downloadUsersPDF}
+    >
+      📄 Download Users Report
+    </button>
+
+    <button
+      style={{...primaryBtn, marginLeft:15}}
+      onClick={downloadEventsPDF}
+    >
+      📄 Download Events Report
+    </button>
+
+  </div>
+</>
           </>
         )}
 
@@ -725,23 +811,15 @@ await addDoc(collection(db, "Events"), {
       </button>
     </div>
   </div>
-  
 ))}
 
 
-          </>
-        )}
-          {/* REPORTS */}
-        {activeTab === "reports" && (
-          <>
-            <ReportsAnalyticsDashboard />
           </>
         )}
       </div>
     </div>
   );
 }
-
 
 const sidebar = {
   width: 220,
@@ -834,4 +912,12 @@ const eventImage = {
   maxWidth: 320,
   borderRadius: 10,
   marginTop: 10
+};
+const analyticsCard = {
+  background: "#f9fafb",
+  padding: 20,
+  borderRadius: 12,
+  width: 160,
+  textAlign: "center",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
 };

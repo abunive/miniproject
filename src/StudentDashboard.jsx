@@ -7,6 +7,7 @@ import StudentActivityPoints from "./StudentActivityPoints";
 import useConfirmBackNavigation from "./useConfirmBackNavigation";
 import StudentDashboardNotifications from "./StudentDashboardNotifications";
 import StudentNotifications from "./StudentNotifications";
+import StudentViewEvents from "./StudentViewEvents";
 
 export default function StudentDashboard() {
     useConfirmBackNavigation(
@@ -146,48 +147,56 @@ useEffect(() => {
     
   </>
 )}
+{activeTab === "events" && <StudentViewEvents />}
 
+      {activeTab === "events" && (
+  <>
+    <h2>Approved Events</h2>
 
-        {activeTab === "events" && (
-          <>
-            <h2>Approved Events</h2>
+    {loading && <p>Loading events...</p>}
+    {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {loading && <p>Loading events...</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+    {!loading &&
+      events
+        .filter(e => e.status === "approved")
+        .map(e => (
+          <div key={e.id} style={card}>
+            <h3>{e.title}</h3>
+            <p><b>Date:</b> {e.eventDate}</p>
+            <p>{e.description}</p>
 
-            {!loading &&
-              events
-                .filter(e => e.status === "approved")
-                .map(e => (
-                  <div key={e.id} style={card}>
-                    <h3>{e.title}</h3>
-                    <p><b>Date:</b> {e.eventDate}</p>
-                    <p>{e.description}</p>
-
-                    {e.posterURL && (
-                      <img
-                        src={e.posterURL}
-                        alt="poster"
-                        style={{ width: 200, marginTop: 10 }}
-                      />
-                    )}
-                  </div>
-                ))}
-
-            {!loading && events.filter(e => e.status === "approved").length === 0 && (
-              <p>No approved events available</p>
+            {e.posterURL && (
+              <img
+                src={e.posterURL}
+                alt="poster"
+                style={{ width: 200, marginTop: 10 }}
+              />
             )}
-          </>
-        )}
-       {activeTab === "proof" && <StudentProofUpload user={auth.currentUser} />}
-       {activeTab === "notifications" && (
+          </div>
+        ))}
+
+    {!loading && events.filter(e => e.status === "approved").length === 0 && (
+      <p>No approved events available</p>
+    )}
+  </>
+)}
+
+
+{activeTab === "proof" && (
+  <StudentProofUpload user={auth.currentUser} />
+)}
+
+{activeTab === "notifications" && (
   <>
     {auth.currentUser && (
       <StudentNotifications studentId={auth.currentUser.uid} />
     )}
   </>
-)}
-      
+)} 
+
+
+
+
 
         
 
