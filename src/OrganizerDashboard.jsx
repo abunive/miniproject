@@ -16,7 +16,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 import { query, orderBy } from "firebase/firestore";
-
+import OrganizerDashboardNotifications from "./OrganizerDashboardNotifications";
+import OrganizerNotifications from "./OrganizerNotifications";
 
 
 
@@ -28,10 +29,19 @@ export default function OrganizerDashboard() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [posterFile, setPosterFile] = useState(null);
   const [posterURL, setPosterURL] = useState("");
-
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [organizerName, setLoggedInName] = useState("");
   const [currentUserRole, setCurrentUserRole] = useState("");
+  
+    const handleOpenEvent = (eventId) => {
+  setActiveTab("events");
+  setSelectedEventId(eventId);
 
+  // 🔥 remove highlight after 3 seconds
+  setTimeout(() => {
+    setSelectedEventId(null);
+  }, 3000);
+};
 
 
 
@@ -96,7 +106,20 @@ export default function OrganizerDashboard() {
 
   useEffect(() => {
     loadEvents();
+     
   }, []);
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const eventId = params.get("event");
+
+  if (eventId) {
+    setActiveTab("events");
+    setSelectedEventId(eventId);  setTimeout(() => {
+      setSelectedEventId(null);
+    }, 3000);// pass to event component
+
+  }
+}, []);
 
 
   
@@ -108,6 +131,11 @@ export default function OrganizerDashboard() {
   const loadEvents = async () => {
   try {
     const q = query(collection(db, "Events"), orderBy("createdAt", "desc"));
+  //  const q = query(
+  // collection(db, "Notifications"),
+  // where("receiverId", "==", auth.currentUser.uid),
+  // orderBy("createdAt", "desc")
+  //  );
     const snap = await getDocs(q);
 
     const list = [];
@@ -162,23 +190,63 @@ export default function OrganizerDashboard() {
       finalPosterURL = await getDownloadURL(imgRef);
     }
 
-    await addDoc(collection(db, "Events"), {
-      eventid: newEvent.eventid,
-      title: newEvent.title,
-      // date: newEvent.date,
-      date: Timestamp.fromDate(new Date(newEvent.date)),
+    // await addDoc(collection(db, "Events"), {
+    //   eventid: newEvent.eventid,
+    //   title: newEvent.title,
+    //   // date: newEvent.date,
+    //   date: Timestamp.fromDate(new Date(newEvent.date)),
 
-      description: newEvent.description,
-      posterURL: finalPosterURL,
+    //   description: newEvent.description,
+    //   posterURL: finalPosterURL,
 
-      status: currentUserRole === "admin" || currentUserRole === "faculty"
-        ? "approved"
-        : "pending",
+    //   status: currentUserRole === "admin" || currentUserRole === "faculty"
+    //     ? "approved"
+    //     : "pending",
 
-      createdBy: auth.currentUser.uid,
-      createdByRole: currentUserRole,
-      createdAt: new Date()
+    //   createdBy: auth.currentUser.uid,
+    //   createdByRole: currentUserRole,
+    //   createdAt: new Date()
+    // });
+
+    const eventRef = await addDoc(collection(db, "Events"), {
+  eventid: newEvent.eventid,
+  title: newEvent.title,
+  date: Timestamp.fromDate(new Date(newEvent.date)),
+  description: newEvent.description,
+  posterURL: finalPosterURL,
+
+  status: currentUserRole === "admin" || currentUserRole === "faculty"
+    ? "approved"
+    : "pending",
+
+  createdBy: auth.currentUser.uid,
+  createdByRole: currentUserRole,
+  createdAt: new Date()
+});
+// 🔔 Notify faculty and admin for verification
+const usersSnap = await getDocs(collection(db, "Users"));
+
+usersSnap.forEach(async (userDoc) => {
+  const user = userDoc.data();
+
+  if (user.role === "faculty" || user.role === "admin") {
+
+    await addDoc(collection(db, "Notifications"), {
+      receiverId: userDoc.id,
+      receiverRole: user.role,
+      type: "event_verification",
+      message: `New event "${newEvent.title}" requires approval`,
+      eventId: eventRef.id,
+      seen: false,
+      createdAt: Timestamp.now()
     });
+
+  }
+});
+
+
+
+    
 
     alert("Event submitted successfully");
 
@@ -207,14 +275,18 @@ export default function OrganizerDashboard() {
     await deleteDoc(doc(db, "Events", id));
     loadEvents();
   };
+  
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* SIDEBAR */}
       <div style={sidebar}>
-        <h3>Admin Panel</h3>
+        <h3>Organizer Panel</h3>
         <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button onClick={() => setActiveTab("events")}>Manage Events</button>
+       <button onClick={() => setActiveTab("notifications")}>
+  Notifications
+</button>
         <div style={{ flex: 1 }}></div>
          <button
     onClick={handleLogout}
@@ -233,13 +305,18 @@ export default function OrganizerDashboard() {
 
       {/* CONTENT */}
       <div style={{ flex: 1, padding: 30 }}>
-        {activeTab === "dashboard" && (
-          <>
-            <h1>Organizer Dashboard</h1>
-            <h2>Welcome,<b>{organizerName}</b></h2><br />
-            <p>notifications</p>
-          </>
-        )}
+       {activeTab === "dashboard" && (
+  <>
+    <h1>Organizer Dashboard</h1>
+    <h2>Welcome, <b>{organizerName}</b></h2>
+
+   
+        <OrganizerDashboardNotifications 
+  onOpenEvent={handleOpenEvent} 
+/>
+  </>
+       
+)}
 
         
         {/* EVENTS */}
@@ -364,8 +441,17 @@ export default function OrganizerDashboard() {
 
 
 
-  {events.map(e => (
-  <div key={e.id} style={eventCard}>
+ {events.map(e => (
+  <div
+    key={e.id}
+    id={e.id} // 🔥 needed for scroll
+    style={{
+      ...eventCard,
+      border: e.id === selectedEventId
+        ? "2px solid #2563eb"
+        : "1px solid #e5e7eb"
+    }}
+  >
     <div style={eventHeader}>
       <h3 style={{ margin: 0 }}>{e.title}</h3>
       <span style={{
@@ -449,6 +535,8 @@ export default function OrganizerDashboard() {
 
           </>
         )}
+
+     {activeTab === "notifications" && <OrganizerNotifications onOpenEvent={handleOpenEvent} />}
       </div>
     </div>
   );
@@ -570,3 +658,5 @@ const actionRow = {
   gap: 12,
   marginTop: 12
 };
+
+

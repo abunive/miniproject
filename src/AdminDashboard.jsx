@@ -330,6 +330,30 @@ await addDoc(collection(db, "Events"), {
     await updateDoc(doc(db, "Events", event.id), {
       status: event.status === "approved" ? "pending" : "approved"
     });
+
+    if (event.status !== "approved") {
+
+  const usersSnap = await getDocs(collection(db, "Users"));
+
+  usersSnap.forEach(async (userDoc) => {
+    const user = userDoc.data();
+
+    if (user.role === "student") {
+
+      await addDoc(collection(db, "Notifications"), {
+        receiverId: userDoc.id,
+        receiverRole: "student",
+        type: "new_event",
+        message: `New event "${event.title}" approved`,
+        eventId: event.id,
+        seen: false,
+        createdAt: Timestamp.now()
+      });
+
+    }
+  });
+
+}
     loadEvents();
   };
 

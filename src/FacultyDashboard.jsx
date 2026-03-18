@@ -245,19 +245,60 @@ const createEvent = async () => {
 };
 
 
+  // const toggleApproval = async (event, action) => {
+  //   let newStatus = "pending";
+
+  //   if (action === "approve") newStatus = "approved";
+  //   if (action === "unapprove") newStatus = "unapproved";
+
+  //   await updateDoc(doc(db, "Events", event.id), {
+  //     status: newStatus
+  //   });
+
+  //   loadEvents();
+  // };
+
   const toggleApproval = async (event, action) => {
-    let newStatus = "pending";
+  let newStatus = "pending";
+  let message = "";
 
-    if (action === "approve") newStatus = "approved";
-    if (action === "unapprove") newStatus = "unapproved";
+  if (action === "approve") {
+    newStatus = "approved";
+    message = `Your event "${event.title}" was approved`;
+  }
 
-    await updateDoc(doc(db, "Events", event.id), {
-      status: newStatus
-    });
+  if (action === "unapprove") {
+    newStatus = "unapproved";
+    message = `Your event "${event.title}" was unapproved`;
+  }
 
-    loadEvents();
-  };
+  // ✅ Update event status
+  await updateDoc(doc(db, "Events", event.id), {
+    status: newStatus
+  });
 
+  // ❗ FIX: CHECK BEFORE USING
+  if (!event.createdBy) {
+    console.error("❌ createdBy missing for event:", event.id);
+    alert("This event has no organizer (old data). Notification skipped.");
+    return;
+  }
+
+  // 🔔 Send notification safely
+  await addDoc(collection(db, "Notifications"), {
+    receiverId: event.createdBy,
+    receiverRole: "organizer",
+    type: "event_status",
+    message: message,
+    eventId: event.id,
+    title: event.title,
+    description: event.description,
+    seen: false,
+    createdAt: Timestamp.now()
+  });
+
+  loadEvents();
+};
   const deleteEvent = async id => {
     if (!window.confirm("Delete event?")) return;
     await deleteDoc(doc(db, "Events", id));

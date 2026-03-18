@@ -9,7 +9,7 @@ import {
   doc
 } from "firebase/firestore";
 
-export default function FacultyDashboardNotifications() {
+export default function OrganizerDashboardNotifications({ onOpenEvent }) {
 
   const [notifications, setNotifications] = useState([]);
 
@@ -21,8 +21,8 @@ export default function FacultyDashboardNotifications() {
 
     const q = query(
       collection(db, "Notifications"),
-      where("receiverRole", "==", "faculty"),
-      where("verified", "==", false)
+      where("receiverRole", "==", "organizer"),
+      where("seen", "==", false)
     );
 
     const snap = await getDocs(q);
@@ -35,42 +35,31 @@ export default function FacultyDashboardNotifications() {
     setNotifications(list);
   };
 
-  const markSeen = async (id) => {
+  const openEvent = async (n) => {
 
-    await updateDoc(doc(db, "Notifications", id), {
-      seen: true
-    });
-
-    setNotifications(notifications.filter(n => n.id !== id));
-  };
-
-
-const openProof = async (n) => {
-
-  // Mark notification as seen
+  // ✅ mark as seen
   await updateDoc(doc(db, "Notifications", n.id), {
     seen: true
   });
 
-  // Go to proof review page
-  window.location.href = `/faculty-dashboard?proof=${n.proofId}`;
+  // ✅ remove from dashboard UI
+  setNotifications(prev => prev.filter(item => item.id !== n.id));
+
+  // ✅ open event details in dashboard
+  onOpenEvent(n.eventId);
 };
 
   return (
     <div style={{ marginTop: 30 }}>
 
-      <h2>🔔 New Proof Uploads</h2>
+      <h2>🔔 Event Notifications</h2>
 
-      {notifications.length === 0 && (
-        <p>No new notifications</p>
-      )}
+      {notifications.length === 0 && <p>No new notifications</p>}
 
       {notifications.map(n => (
-
         <div
           key={n.id}
-        //   onClick={() => markSeen(n.id)}
-        onClick={() => openProof(n)}
+          onClick={() => openEvent(n)}
           style={{
             border: "1px solid #ccc",
             padding: 15,
@@ -80,32 +69,13 @@ const openProof = async (n) => {
             cursor: "pointer"
           }}
         >
-
-          <b>{n.studentName}</b> uploaded a proof
-
-          <p><b>Purpose:</b> {n.purpose}</p>
+          <b>{n.title}</b>
 
           <p><b>Description:</b> {n.description}</p>
 
-          <small>Click to mark as viewed</small>
-
+          <small>Click to view event</small>
         </div>
-
       ))}
-
     </div>
-    
   );
-  <div
-  key={n.id}
-  onClick={() => openProof(n)}
-  style={{
-    border:"1px solid #ccc",
-    padding:15,
-    borderRadius:8,
-    marginBottom:10,
-    cursor:"pointer",
-    background:"#e0f2fe"
-  }}
-></div>
 }
