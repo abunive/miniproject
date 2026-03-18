@@ -151,9 +151,9 @@ hr {
 }
 
 /* ✅ remove border when clicked or focused */
-/* .toggle-password:focus,
+.toggle-password:focus,
 .toggle-password:active {
   outline: none;
   border: none;
   box-shadow: none;
-} */
+}
