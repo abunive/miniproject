@@ -18,7 +18,8 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { query, orderBy } from "firebase/firestore";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
+import "./admindas.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 export default function AdminDashboard() {
@@ -339,56 +340,50 @@ await addDoc(collection(db, "Events"), {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="layout">
       {/* SIDEBAR */}
-      <div style={sidebar}>
-        <h3>Admin Panel</h3>
-        <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button onClick={() => setActiveTab("users")}>Manage Users</button>
-        <button onClick={() => setActiveTab("events")}>Manage Events</button>
-         <div style={{ flex: 1 }}></div>
-         <button
-    onClick={handleLogout}
-    style={{
-      background: "#dc2626",
-      color: "white",
-      marginTop: 20,
-      padding: "10px",
-      borderRadius: 6,
-      fontWeight: "bold"
-    }}
-  >
-    🔓 Logout
-  </button>
-      </div>
+    <div className="sidebar">
+  <div className="sidebar-top">
+    <h3>Admin Panel</h3>
+
+    <button onClick={() => setActiveTab("dashboard")}><i className="fa-solid fa-house"></i> Dashboard</button>
+    <button onClick={() => setActiveTab("users")}> <i class="fa-solid fa-user"></i> Manage Users</button>
+    <button onClick={() => setActiveTab("events")}> <i class="fa-solid fa-star"></i> Manage Events</button>
+  </div>
+
+  <div className="sidebar-bottom">
+    <button className="logout-btn" onClick={handleLogout}>
+      🔓 Logout
+    </button>
+  </div>
+</div>
 
       {/* CONTENT */}
-      <div style={{ flex: 1, padding: 30 }}>
+      <div className="main">
         {activeTab === "dashboard" && (
           <>
            <>
   <h1>Admin Dashboard</h1>
-  <h2>Welcome, <b>{adminName}</b></h2>
+  <h2>Welcome <br /> <b>{adminName}</b></h2>
 
   <div style={{display:"flex", gap:30, marginTop:20}}>
 
-    <div style={analyticsCard}>
-      <h3>Students</h3>
+    <div className="analytics-card">
+      <h3> <i className="fa-solid fa-user-graduate"></i> Students</h3>
       <p>{studentCount}</p>
     </div>
 
-    <div style={analyticsCard}>
-      <h3>Faculty</h3>
-      <p>{facultyCount}</p>
+    <div className="analytics-card">
+      <h3> <i className="fa-solid fa-chalkboard-teacher"></i> Faculty</h3>
+      <p>{facultyCount}</p> 
     </div>
-
-    <div style={analyticsCard}>
-      <h3>Organizers</h3>
+    <div className="analytics-card">
+      <h3> <i className="fa-solid fa-user-tie"></i> Organizer</h3>
       <p>{organizerCount}</p>
     </div>
 
-    <div style={analyticsCard}>
-      <h3>Total Events</h3>
+    <div className="analytics-card">
+      <h3> <i className="fa-solid fa-calendar-days"></i> Total Events</h3>
       <p>{events.length}</p>
     </div>
 
@@ -396,15 +391,14 @@ await addDoc(collection(db, "Events"), {
 
   <div style={{marginTop:30}}>
 
-    <button
-      style={primaryBtn}
+    <button className="download-btn"
       onClick={downloadUsersPDF}
     >
       📄 Download Users Report
     </button>
 
     <button
-      style={{...primaryBtn, marginLeft:15}}
+    className="download-btn"
       onClick={downloadEventsPDF}
     >
       📄 Download Events Report
@@ -494,7 +488,7 @@ await addDoc(collection(db, "Events"), {
                 {users
                   .filter(u => u.role === role)
                   .map(u => (
-                    <div key={u.id} style={card}>
+                  <div key={u.id} className="user-card">
                       <b>{String(u.name || "No Name")}</b>
                       <br />
                       Uid: {String(u.username || "N/A")}
@@ -758,7 +752,7 @@ await addDoc(collection(db, "Events"), {
 )}
 
 {events.map(e => (
-  <div key={e.id} style={eventCard}>
+ <div key={e.id} className="event-card">
     <div style={eventHeader}>
       <h3>{e.title}</h3>
       <span
@@ -798,15 +792,15 @@ await addDoc(collection(db, "Events"), {
     )}
 
     <div style={actionRow}>
-      <button style={approveBtn} onClick={() => toggleApproval(e)}>
+      <button className="approveBtn" onClick={() => toggleApproval(e)}>
         {e.status === "approved" ? "Unapprove" : "Approve"}
       </button>
 
-      <button style={primaryBtn} onClick={() => setEditingEvent(e)}>
+      <button className="primaryBtn" onClick={() => setEditingEvent(e)}>
         Edit
       </button>
 
-      <button style={dangerBtn} onClick={() => deleteEvent(e.id)}>
+      <button className="dangerBtn" onClick={() => deleteEvent(e.id)}>
         Delete
       </button>
     </div>
