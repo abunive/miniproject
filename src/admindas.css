@@ -302,16 +302,7 @@ h2 {
 }
 
 /* ================= MAIN CONTENT ================= */
-.main {
-  flex: 1; /* 🔥 this prevents override */
-  padding: 30px;
-  margin: 0; /* ❌ remove margin causing overflow */
-  
-  overflow-y: auto; /* scroll inside */
-  
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-}
+
 /* ================= USERS SECTION ================= */
 .users-section {
   margin-top: 20px;
@@ -355,4 +346,605 @@ h2 {
   line-height: 1.6;
 }
 
-/* Dropdown */
+/* Container flex */
+.container {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+/* ================= ADD USER MODAL ================= */
+.add-user-modal {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  max-width: 400px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Modal heading */
+.add-user-modal h3 {
+  margin-bottom: 10px;
+  color: #111827;
+}
+
+/* Inputs and select */
+.add-user-modal input,
+.add-user-modal select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Buttons inside modal */
+.add-user-modal button {
+  background-color: #22c55e;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.add-user-modal button:hover {
+  transform: scale(1.05);
+}
+
+/* Checkbox labels */
+.add-user-modal .checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-user-modal .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Add User button outside modal */
+.add-user-btn {
+  background-color: #2E86C1;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.add-user-btn:hover {
+  background-color: #1b4f7a;
+}
+/* ================= USER MODAL BUTTONS ================= */
+.user-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Create User button */
+.user-modal-buttons .create-btn {
+  background-color: #22c55e; /* green */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-modal-buttons .create-btn:hover {
+  background-color: #06411c; /* darker green on hover */
+  transform: scale(1.05);
+}
+
+/* Cancel button */
+.user-modal-buttons .cancel-btn {
+  background-color: #1f5ace; /* light gray */
+  color: white; /* dark gray text */
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-modal-buttons .cancel-btn:hover {
+  background-color: #042353; /* darker gray on hover */
+  transform: scale(1.05);
+}
+/* ================= CUSTOM CHECKBOX ================= */
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #111827;
+  user-select: none;
+}
+
+/* Hide default checkbox */
+.custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+/* Custom checkbox box */
+.custom-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+  background-color: #f3f4f6; /* light gray */
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Checkmark visible when checked */
+.custom-checkbox input[type="checkbox"]:checked + .checkmark {
+  background-color: #22c55e; /* green */
+  border-color: #22c55e;
+}
+
+/* Tick inside the checkbox */
+.custom-checkbox .checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Show tick when checked */
+.custom-checkbox input[type="checkbox"]:checked + .checkmark::after {
+  display: block;
+}
+/* ================= MODAL ================= */
+.add-user-modal {
+  background-color: #1f2937; /* dark background */
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 450px;
+  margin-top: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* spacing between elements */
+}
+
+/* Heading */
+.add-user-modal h3 {
+  margin-bottom: 10px;
+  color: #ffffff; /* white for visibility */
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Inputs and select */
+.add-user-modal input,
+.add-user-modal select {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #374151; /* darker border for dark modal */
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #111827; /* dark input */
+  color: #f9fafb; /* text white */
+  transition: all 0.2s ease;
+}
+
+/* Focus state */
+.add-user-modal input:focus,
+.add-user-modal select:focus {
+  border-color: #3b82f6; /* blue border on focus */
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+}
+
+/* Placeholder color */
+.add-user-modal input::placeholder {
+  color: #9ca3af; /* light gray */
+}
+
+/* Add spacing between elements without <br /> */
+.add-user-modal > * {
+  margin-bottom: 10px;
+}
+/* ================= USER CARD ================= */
+.user-card {
+  background-color: #eff1f4; /* dark card */
+  color: black; /* white text */
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect */
+.user-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+/* Bold user name */
+.user-card b {
+  font-size: 18px;
+  color: #ffffff;
+}
+
+/* Row layout for select and buttons */
+.user-card .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Select styling */
+.user-card select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  background-color: #ffffff;
+  color: #000000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-card select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 5px rgba(59,130,246,0.5);
+}
+
+/* Buttons */
+.user-card button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.user-card button.activate {
+  background-color: #22c55e;
+  color: #fff;
+}
+
+.user-card button.deactivate {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.user-card button.event-toggle {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+.user-card button:hover {
+  opacity: 0.9;
+}
+.create-btn {
+  background: linear-gradient(green ,rgb(2, 84, 18)); /* Blue gradient */
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.create-btn:hover {
+  transform: scale(1.05);
+}
+
+.create-btn:active {
+  transform: scale(0.95);
+}
+
+.event-cancel-btn {
+  background: #ef4444; /* Red */
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.event-cancel-btn:hover {
+  transform: scale(1.05);
+}
+
+.event-cancel-btn:active {
+  transform: scale(0.95);
+}
+
+/* Optional container for spacing between buttons */
+.user-modal-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+.add-event-modal {
+  background: #edf1f4;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 30px auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  color: #000000;
+}
+
+.add-event-modal h3 {
+  margin-bottom: 20px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.add-event-modal input,
+.add-event-modal textarea,
+.add-event-modal select {
+  width: 90%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  margin-bottom: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.add-event-modal textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+/* ================= BUTTONS ================= */
+.save-btn {
+  background: #22c55e; /* Green for save */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.save-btn:hover {
+  transform: scale(1.05);
+}
+
+.save-btn:active {
+  transform: scale(0.95);
+}
+
+.cancel-btn {
+  background: #ef4444; /* Red for cancel */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  margin-left: 10px;
+}
+
+.cancel-btn:hover {
+  transform: scale(1.05);
+}
+
+.cancel-btn:active {
+  transform: scale(0.95);
+}
+/* ================= SQUARE FORM CONTAINER ================= */
+.square-form-container {
+  width: 450px;              /* square width */
+  height: 450px;             /* same height for square */
+  background-color: #ffffff; /* white card */
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* space between inputs and buttons */
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.square-form-container:hover {
+  box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+}
+
+/* Scrollable input content */
+.square-form-container .form-content {
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ================= INPUTS & TEXTAREA ================= */
+.form-input,
+.form-textarea {
+  width: 90%;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  color: #111827;
+  background-color: #f3f4f6;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Focus effect */
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Textarea specific */
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Placeholder */
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Hover effect */
+.form-input:hover,
+.form-textarea:hover {
+  border-color: #94a3b8;
+  background-color: #f9fafb;
+}
+
+/* ================= BUTTONS ================= */
+.form-btn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.form-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+.form-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+/* ================= APPROVE BUTTON ================= */
+.approveBtn {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #22c55e, #16a34a); /* green */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.approveBtn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.approveBtn:active {
+  transform: scale(0.97);
+}
+
+/* ================= PRIMARY / EDIT BUTTON ================= */
+.primaryBtn {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6, #6366f1); /* blue */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+.primaryBtn:active {
+  transform: scale(0.97);
+}
+
+/* ================= DANGER / DELETE BUTTON ================= */
+.dangerBtn {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #ef4444, #dc2626); /* red */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.dangerBtn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.dangerBtn:active {
+  transform: scale(0.97);
+}
+
+/* ================= BUTTON GROUP ================= */
+.button-group {
+  display: flex;
+  gap: 12px;
+}

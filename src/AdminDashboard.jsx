@@ -377,7 +377,7 @@ await addDoc(collection(db, "Events"), {
 
   <div className="sidebar-bottom">
     <button className="logout-btn" onClick={handleLogout}>
-      🔓 Logout
+      <i class="fa-solid fa-lock"></i>Logout
     </button>
   </div>
 </div>
@@ -388,7 +388,7 @@ await addDoc(collection(db, "Events"), {
           <>
            <>
   <h1>Admin Dashboard</h1>
-  <h2>Welcome <br /> <b>{adminName}</b></h2>
+  <h2>Welcome , <b>{adminName}</b></h2>
 
   <div style={{display:"flex", gap:30, marginTop:20}}>
 
@@ -438,42 +438,48 @@ await addDoc(collection(db, "Events"), {
           <>
             <h2>Manage Users</h2>
             <button onClick={() => setShowAddUser(true)}>
-             ➕ Add User
+             <i class="fa-solid fa-plus"></i> Add User
               </button>
               {showAddUser && (
             <div style={modal}>
-              <h3>Add User</h3>
+             <div className="add-user-modal">
+  <h3>Add User</h3>
 
-              <input
-                placeholder="Name"
-                value={newUser.name}
-                onChange={e => setNewUser({ ...newUser, name: e.target.value })}
-              />
+  <input
+    placeholder="Name"
+    value={newUser.name}
+    onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+  />
 
-              <input
-                placeholder="Username / Email"
-                value={newUser.username}
-                onChange={e => setNewUser({ ...newUser, username: e.target.value })}
-              />
+  <input
+    placeholder="Username / Email"
+    value={newUser.username}
+    onChange={e => setNewUser({ ...newUser, username: e.target.value })}
+  />
 
-              <input
-                placeholder="Password"
-                value={newUser.password}
-                onChange={e => setNewUser({ ...newUser, password: e.target.value })}
-              />
+  <input
+    type="password"
+    placeholder="Password"
+    value={newUser.password}
+    onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+  />
 
-              <select
-                value={newUser.role}
-                onChange={e => setNewUser({ ...newUser, role: e.target.value })}
-              >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
-                <option value="organizer">Organizer</option>
-              </select>
+  <select
+    value={newUser.role}
+    onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+  >
+    <div className="select-options">
+      <option value="student">Student</option>
+      <option value="faculty">Faculty</option>
+      <option value="organizer">Organizer</option>
+   </div>
+  </select>
+</div>
 
               <br /><br />
 
-              <label>
+             <div className="checkbox-group" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <label className="custom-checkbox">
                 <input
                   type="checkbox"
                   checked={newUser.isActive}
@@ -481,12 +487,11 @@ await addDoc(collection(db, "Events"), {
                     setNewUser({ ...newUser, isActive: e.target.checked })
                   }
                 />
+                <span className="checkmark"></span>
                 Active
               </label>
 
-              <br />
-
-              <label>
+              <label className="custom-checkbox">
                 <input
                   type="checkbox"
                   checked={newUser.canAddEvent}
@@ -494,66 +499,89 @@ await addDoc(collection(db, "Events"), {
                     setNewUser({ ...newUser, canAddEvent: e.target.checked })
                   }
                 />
+                <span className="checkmark"></span>
                 Can Add Event
               </label>
 
+            </div>
+  
+
               <br /><br />
 
-              <button onClick={createUser}>Create User</button>
-              <button onClick={() => setShowAddUser(false)}>Cancel</button>
+             <div className="user-modal-buttons">
+  <button className="create-btn" onClick={createUser}>
+    Create User
+  </button>
+  <button className="cancel-btn" onClick={() => setShowAddUser(false)}>
+    Cancel
+  </button>
+</div>
             </div>
           )}
 
 
             {["faculty", "organizer", "student"].map(role => (
               <div key={role}>
-                <h3>{role.toUpperCase()}</h3>
-
-                {users
+               <h3 style={{ color: "#ffffff", marginBottom: "10px", textTransform: "uppercase" }}>
+      {role}
+    </h3>
+                                  {users
                   .filter(u => u.role === role)
                   .map(u => (
-                  <div key={u.id} className="user-card">
-                      <b>{String(u.name || "No Name")}</b>
-                      <br />
-                      Uid: {String(u.username || "N/A")}
-                      <br />
-                      Active: {String(u.isActive)}
-                      <br />
-                      Role:
+                    <div key={u.id} className="user-card">
+                      <b>{u.name || "No Name"}</b>
 
-                      <select
-                        value={u.role}
-                        onChange={e => updateUserRole(u.id, e.target.value)}
-                        style={{ marginLeft: 10 }}
-                      >
-                        <option value="student">Student</option>
-                        <option value="faculty">Faculty</option>
-                        <option value="organizer">Organizer</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                      <br />
-                      Can Add Event: {String(u.canAddEvent)}
-                      <br /><br />
+                      <div className="row">
+                        <span>Uid: {u.username || "N/A"}</span>
+                      
+                      </div>
+                      <div className="row">
+                      
+                        <span>Active: {u.isActive ? "Yes" : "No"}</span>
+                      </div>
 
-                      <button onClick={() => toggleActive(u)}>
-                        {u.isActive ? "Deactivate" : "Activate"}
-                      </button>
+                      <div className="row">
+                        <span>Role:</span>
+                        <select
+                          value={u.role}
+                          onChange={e => updateUserRole(u.id, e.target.value)}
+                        >
+                          <option value="student">Student</option>
+                          <option value="faculty">Faculty</option>
+                          <option value="organizer">Organizer</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
 
-                      <button
-                        onClick={() => toggleCanAddEvent(u)}
-                        style={{ marginLeft: 10 }}
-                      >
-                        {u.canAddEvent ? "Revoke Event Access" : "Approve Event"}
-                      </button>
+                      <div className="row">
+                        <span>Can Add Event: {u.canAddEvent ? "Yes" : "No"}</span>
+                      </div>
 
-                      <button
-                        onClick={() => deleteUser(u.id)}
-                        style={{ marginLeft: 10, background: "red", color: "#fff" }}
-                      >
-                        Remove
-                      </button>
+                      <div className="row">
+                        <button
+                          className={u.isActive ? "deactivate" : "activate"}
+                          onClick={() => toggleActive(u)}
+                        >
+                          {u.isActive ? "Deactivate" : "Activate"}
+                        </button>
+
+                        <button
+                          className="event-toggle"
+                          onClick={() => toggleCanAddEvent(u)}
+                        >
+                          {u.canAddEvent ? "Revoke Event Access" : "Approve Event"}
+                        </button>
+
+                        <button
+                          className="deactivate"
+                          onClick={() => deleteUser(u.id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                ))}
+              
               </div>
             ))}
           </>
@@ -563,141 +591,46 @@ await addDoc(collection(db, "Events"), {
         {activeTab === "events" && (
           <>
             <h2>Manage Events</h2>
-            <button onClick={() => setShowAddEvent(true)}>➕ Add Event</button>
-
-            {/* {showAddEvent && (
-              <div style={modal}>
-                <h3>Add Event</h3>
-
-                <input placeholder="Event ID" onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })} />
-                <input placeholder="Title" onChange={e => setNewEvent({ ...newEvent, title: e.target.value })} />
-                <input placeholder="Date (Feb 2-10)" onChange={e => setNewEvent({ ...newEvent, date: e.target.value })} />
-                <input placeholder="Poster URL" onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })} />
-                <textarea placeholder="Description" onChange={e => setNewEvent({ ...newEvent, description: e.target.value })} />
-                <input type="file"accept="image/*"onChange={e => setPosterFile(e.target.files[0])}/>
-                <br /><br />
-                <button onClick={createEvent}>Create Event</button>
-                <button onClick={() => setShowAddEvent(false)}>Cancel</button>
-              </div>
-            )} */}
-
-                {showAddEvent && (
-  <div
-    style={{
-      background: "#f9fafb",
-      padding: 25,
-      borderRadius: 12,
-      maxWidth: 500,
-      margin: "30px auto",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.1)"
-    }}
-  >
-    <h3 style={{ marginBottom: 20, color: "#111827" }}>Add Event</h3>
+            <button onClick={() => setShowAddEvent(true)}><i class="fa-solid fa-plus"></i> Add Event</button>
+            <br /><br /><br />
+{showAddEvent && (
+  <div className="add-event-modal">
+    <h3>Add Event</h3>
 
     <input
-      style={{
-        width: "100%",
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid #d1d5db",
-        fontSize: 14,
-        marginBottom: 12,
-        outline: "none"
-      }}
       placeholder="Event ID"
       onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
     />
 
     <input
-      style={{
-        width: "100%",
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid #d1d5db",
-        fontSize: 14,
-        marginBottom: 12,
-        outline: "none"
-      }}
       placeholder="Title"
       onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
     />
 
     <input
-      style={{
-        width: "100%",
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid #d1d5db",
-        fontSize: 14,
-        marginBottom: 12,
-        outline: "none"
-      }}
       type="date"
       onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
     />
 
     <input
-      style={{
-        width: "100%",
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid #d1d5db",
-        fontSize: 14,
-        marginBottom: 12,
-        outline: "none"
-      }}
       placeholder="Poster URL"
       onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}
     />
 
     <textarea
-      style={{
-        width: "100%",
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid #d1d5db",
-        fontSize: 14,
-        marginBottom: 12,
-        minHeight: 100,
-        outline: "none",
-        resize: "vertical"
-      }}
       placeholder="Description"
       onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
     />
 
     <div style={{ display: "flex", gap: 12, marginTop: 15 }}>
-      <button
-        style={{
-          flex: 1,
-          background: "#2563eb",
-          color: "#fff",
-          padding: "12px 0",
-          borderRadius: 10,
-          border: "none",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}
-        onClick={createEvent}
-      >
-        Create Event
-      </button>
-
-      <button
-        style={{
-          flex: 1,
-          background: "#e5e7eb",
-          color: "#111827",
-          padding: "12px 0",
-          borderRadius: 10,
-          border: "none",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}
-        onClick={() => setShowAddEvent(false)}
-      >
-        Cancel
-      </button>
+      <div className="user-modal-buttons">
+  <button className="create-btn" onClick={createEvent}>
+    Create Event
+  </button>
+  <button className="event-cancel-btn" onClick={() => setShowAddEvent(false)}>
+    Cancel
+  </button>
+</div>
     </div>
   </div>
 )}
@@ -707,73 +640,74 @@ await addDoc(collection(db, "Events"), {
             {editingEvent && (
   <div style={modal}>
     <h3>Edit Event</h3>
-
     <input
-      value={editingEvent.title || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, title: e.target.value })
-      }
-      placeholder="Title"
-    />
+  className="form-input"
+  value={editingEvent.title || ""}
+  onChange={e =>
+    setEditingEvent({ ...editingEvent, title: e.target.value })
+  }
+  placeholder="Title"
+/>
+<br />
+<input
+  className="form-input"
+  type="date"
+  value={editingEvent.date || ""}
+  onChange={e =>
+    setEditingEvent({ ...editingEvent, date: e.target.value })
+  }
+/>
+<br />
 
-    <input
-      value={editingEvent.date || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, date: e.target.value })
-      }
-      placeholder="Date"
-    />
+<input
+  className="form-input"
+  value={editingEvent.posterURL || ""}
+  onChange={e =>
+    setEditingEvent({ ...editingEvent, posterURL: e.target.value })
+  }
+  placeholder="Poster URL"
+/>
+<br />
 
-    <input
-      value={editingEvent.posterURL || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, posterURL: e.target.value })
-      }
-      placeholder="Poster URL"
-    />
-
-    <textarea
-      value={editingEvent.description || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, description: e.target.value })
-      }
-      placeholder="Description"
-    />
-    <input
-    placeholder="Poster Image URL (optional)"
-      value={posterURL}
+<textarea
+  className="form-textarea"
+  value={editingEvent.description || ""}
+  onChange={e =>
+    setEditingEvent({ ...editingEvent, description: e.target.value })
+  }
+  placeholder="Description"
+/>
+<br />
+<input
+  className="form-input"
+  value={posterURL}
   onChange={e => setPosterURL(e.target.value)}
-    />
+  placeholder="Poster Image URL (optional)"
+/>
 
-      <br /><br />
-{/* 
-    <input
-     type="file"
-    accept="image/*"
-    onChange={e => setPosterFile(e.target.files[0])}
-    /> */}
-
-
-    <br /><br />
+      <br />
+      <br />
 
     <button
-      onClick={async () => {
-        await updateDoc(doc(db, "Events", editingEvent.id), editingEvent);
-        setEditingEvent(null);
-        loadEvents();
-      }}
-    >
-      Save
-    </button>
+  className="save-btn"
+  onClick={async () => {
+    await updateDoc(doc(db, "Events", editingEvent.id), editingEvent);
+    setEditingEvent(null);
+    loadEvents();
+  }}
+>
+  Save
+</button>
 
-    <button
-      onClick={() => setEditingEvent(null)}
-      style={{ marginLeft: 10 }}
-    >
-      Cancel
-    </button>
+<button
+  className="cancel-btn"
+  onClick={() => setEditingEvent(null)}
+>
+  Cancel
+</button>
   </div>
 )}
+<br /> <br />
 
 {events.map(e => (
  <div key={e.id} className="event-card">
@@ -816,17 +750,19 @@ await addDoc(collection(db, "Events"), {
     )}
 
     <div style={actionRow}>
-      <button className="approveBtn" onClick={() => toggleApproval(e)}>
-        {e.status === "approved" ? "Unapprove" : "Approve"}
-      </button>
+     <div className="button-group">
+  <button className="approveBtn" onClick={() => toggleApproval(e)}>
+    {e.status === "approved" ? "Unapprove" : "Approve"}
+  </button>
 
-      <button className="primaryBtn" onClick={() => setEditingEvent(e)}>
-        Edit
-      </button>
+  <button className="primaryBtn" onClick={() => setEditingEvent(e)}>
+    Edit
+  </button>
 
-      <button className="dangerBtn" onClick={() => deleteEvent(e.id)}>
-        Delete
-      </button>
+  <button className="dangerBtn" onClick={() => deleteEvent(e.id)}>
+    Delete
+  </button>
+</div>
     </div>
   </div>
 ))}
