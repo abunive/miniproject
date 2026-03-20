@@ -1,0 +1,690 @@
+/* ================= MAIN ================= */
+.main {
+  flex: 1;
+  padding: 30px;
+  margin: 20px;
+  border-radius: 20px;
+
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+/* LAYOUT */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(180deg, #0f172a, #1e293b);
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* LOGO */
+.logo {
+  margin-bottom: 20px;
+}
+
+/* BUTTONS */
+.sidebar button {
+  padding: 12px;
+  margin-bottom: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.3s;
+}
+
+.sidebar button:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+/* ACTIVE */
+.sidebar button.active {
+  background: #374151;
+  color: white;
+}
+
+/* SPACER */
+.spacer {
+  flex: 1;
+}
+
+/* LOGOUT */
+.logout-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* EVENTS */
+.events-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.event-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 10px;
+  width: 250px;
+}
+
+.event-card img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+/* ERROR */
+.error {
+  color: red;
+}
+/* NO NOTIFICATIONS */
+.no-notifications {
+  color: #fff;
+  font-style: italic;
+}
+/*.......................................events page.............................*//* TITLE */
+h2 {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+/* 🌟 CALENDAR WRAPPER (GLASS LOOK) */
+.calendar-wrapper {
+  width: 450px;
+  margin: 40px auto;
+  padding: 20px;
+
+  background: #ffffff;
+  backdrop-filter: blur(12px);
+
+  border-radius: 18px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* 🌟 MAIN CALENDAR */
+.react-calendar {
+    width: 100%;
+    font-size: 16px;
+  border: none;
+  background: transparent;
+  color: #000000;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* 🌟 NAVIGATION (Month + arrows) */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.react-calendar__navigation button {
+  color: #01070f;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+.react-calendar__navigation__label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #0f172a; /* strong dark */
+}
+.react-calendar__navigation__arrow {
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.react-calendar__navigation button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* 🌟 WEEK DAYS */
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+/* 🌟 DAY TILES */
+.react-calendar__tile {
+  padding: 14px 0;
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+/* HOVER */
+.react-calendar__tile:hover {
+  background: rgba(59, 130, 246, 0.3);
+  color: #000000;
+}
+
+/* TODAY */
+.react-calendar__tile--now {
+  background: rgba(16, 185, 129, 0.4);
+  color: black;
+  border-radius: 10px;
+}
+
+/* SELECTED DATE */
+.react-calendar__tile--active {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: black;
+  font-weight: bold;
+}
+
+/* DISABLED DAYS */
+.react-calendar__tile:disabled {
+  color: #000000;
+}
+
+/* 🌟 EVENT DOT */
+.event-dot {
+  margin-top: 3px;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background: #f43f5e;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 🌟 SMOOTH TRANSITION */
+.react-calendar button {
+  transition: all 0.2s ease;
+}
+
+/* IMAGE */
+.event-image {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+/* NO IMAGE */
+.no-image {
+  margin-top: 10px;
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* LIKE BUTTON */
+.like-btn {
+  margin-top: 12px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  background: #f9a8d4;
+  color: #fff;
+  transition: 0.3s;
+}
+
+/* LIKED STATE */
+.like-btn.liked {
+  background: #be185d;
+  transform: scale(1.05);
+}
+
+/* HOVER EFFECT */
+.like-btn:hover {
+  opacity: 0.9;
+}
+.events-container {
+  display: flex;
+  flex-direction: column;   /* 🔥 stack vertically */
+  align-items: center;      /* 🔥 center horizontally */
+}
+.event-card {
+  width: 420px;             /* match calendar width */
+  margin: 20px 0;           /* spacing between cards */
+
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 18px;
+
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.no-events {
+  text-align: center;
+  margin-top: 20px;
+  color: #64748b;
+}
+/*..................................upload page.............................*//* CONTAINER */
+/* WRAPPER */
+.uploadproof-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* CARD */
+.uploadproof-card {
+  width: 100%;
+  max-width: 600px;
+
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+
+  border-radius: 20px;
+  padding: 30px;
+
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  color: #fff;
+}
+
+/* TITLE */
+.uploadproof-card h2 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* FORM GROUP */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+/* SECTION */
+.form-section {
+  margin-top: 20px;
+  padding: 15px;
+
+  background: rgba(105, 27, 27, 0.05);
+  border-radius: 12px;
+}
+
+.form-section h4 {
+  margin-bottom: 10px;
+  color: #e2e8f0;
+}
+
+/* LABEL */
+label {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+label span {
+  color: red;
+}
+
+/* INPUTS */
+.uploadproof-card input,
+.uploadproof-card select,
+.uploadproof-card textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  border-radius: 8px;
+  border: none;
+
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+
+  outline: none;
+}
+
+/* PLACEHOLDER */
+.uploadproof-card input::placeholder,
+.uploadproof-card textarea::placeholder {
+  color: #cbd5e1;
+}
+
+/* BUTTON */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border: none;
+  border-radius: 10px;
+
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+}
+.uploadproof-card label {
+  color: #ffffff;
+}
+.uploadproof-card label {
+  color: #e2e8f0;   /* soft white */
+  font-weight: 500;
+}
+/* INPUT + TEXTAREA TEXT COLOR */
+.uploadproof-card input,
+.uploadproof-card textarea {
+  color: #000000;            /* 🔥 black text */
+  background: #ffffff;       /* white background */
+}
+
+/* PLACEHOLDER COLOR */
+.uploadproof-card input::placeholder,
+.uploadproof-card textarea::placeholder {
+  color: #6b7280;            /* grey placeholder */
+}
+/* TITLE */
+.submission-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+/* CONTAINER */
+.submission-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* CARD */
+.submission-card {
+  width: 420px;
+  padding: 18px;
+
+  background: #ffffff;
+  border-radius: 14px;
+
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.submission-card:hover {
+  transform: translateY(-5px);
+}
+
+/* LINK */
+.proof-link {
+  margin-left: 6px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.proof-link:hover {
+  text-decoration: underline;
+}
+
+/* STATUS */
+.status {
+  margin-left: 8px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.status.approved {
+  color: green;
+}
+
+.status.rejected {
+  color: red;
+}
+
+.status.pending {
+  color: #2563eb;
+}
+
+/* POINTS BOX */
+.points-box {
+  margin-top: 12px;
+  padding: 12px;
+
+  border-radius: 10px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+
+  font-size: 14px;
+}
+
+/* BUTTONS */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.edit-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #dbeafe;
+}
+
+.delete-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+}
+
+/* REJECT TEXT */
+.reject-text {
+  margin-top: 10px;
+  color: red;
+  font-weight: 500;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.4);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MODAL BOX */
+.modal-box {
+  width: 320px;
+  padding: 20px;
+
+  background: #fff;
+  border-radius: 12px;
+
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* MODAL TEXT */
+.modal-text {
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* MODAL BUTTONS */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.points-box {
+  margin-top: 12px;
+  padding: 12px;
+
+  border-radius: 10px;
+  background: #f0f9ff;
+  border: 1px solid #000000;  /* 🔥 changed to black */
+
+  font-size: 14px;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.modal-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+}
+
+.modal-text {
+  color: #111827;
+  margin-bottom: 20px;
+  font-weight: 500;
+  color: #111827;   /* 🔥 make text visible */
+  /* 🔥 FIX */
+}
+.confirm-btn {
+  color: #fff;
+}
+
+.cancel-btn {
+  color: #111827;
+}
+/* OVERLAY */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 99999; /* 🔥 higher */
+}
+
+/* MODAL BOX */
+.modal-box {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 14px;
+  width: 340px;
+
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+
+  position: relative;
+  z-index: 10001; /* 🔥 important */
+}
+
+/* TEXT */
+.modal-text {
+  color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* BUTTONS */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}

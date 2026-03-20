@@ -149,40 +149,23 @@ const toggleLike = async (eventId) => {
 
   /* 📌 Highlight dates that have events */
   const tileContent = ({ date, view }) => {
-    if (view === "month") {
-      const hasEvent = approvedEvents.some(e =>
-        e.realDate &&
-        e.realDate.getDate() === date.getDate() &&
-        e.realDate.getMonth() === date.getMonth() &&
-        e.realDate.getFullYear() === date.getFullYear()
-      );
+  if (view === "month") {
+    const hasEvent = approvedEvents.some(e =>
+      e.realDate &&
+      e.realDate.getDate() === date.getDate() &&
+      e.realDate.getMonth() === date.getMonth() &&
+      e.realDate.getFullYear() === date.getFullYear()
+    );
 
-      if (hasEvent) {
-        return (
-          <div
-            style={{
-              marginTop: 2,
-              height: 6,
-              width: 6,
-              borderRadius: "50%",
-              background: "red",
-              marginLeft: "auto",
-              marginRight: "auto"
-            }}
-          />
-        );
-      }
+    if (hasEvent) {
+      return <div className="event-dot"></div>;
     }
-  };
+  }
+};
 
   return (
     <>
-     <h2 style={{
-  textAlign:"center",
-  color:"#be185d",
-  fontWeight:"bold",
-  marginBottom:"10px"
-}}>
+     <h2 >
         Approved Events Calendar
       </h2>
 
@@ -190,28 +173,23 @@ const toggleLike = async (eventId) => {
 
       {!loading && (
         <>
-         <div style={calendarWrapper}>
+              <div className="calendar-wrapper">
   <Calendar
     onChange={setSelectedDate}
     value={selectedDate}
     tileContent={tileContent}
   />
 </div>
-            <h3 style={{
-  marginTop:30,
-  textAlign:"center",
-  color:"#374151"
-}}>
-          
-            Events on {selectedDate.toLocaleDateString()}
-          </h3>
+          <h3 className="event-date-heading">
+  Events on {selectedDate.toLocaleDateString()}
+</h3>
 
-          {eventsForSelectedDate.length === 0 && (
-            <p>No approved events on this date</p>
-          )}
+        {eventsForSelectedDate.length === 0 && (
+  <p className="no-events">No approved events on this date</p>
+)}
 
           {eventsForSelectedDate.map(e => (
-            <div key={e.id} style={card}>
+            <div key={e.id} className="event-card">
 
               <h3>{e.title}</h3>
 
@@ -220,47 +198,18 @@ const toggleLike = async (eventId) => {
               <p>{e.description}</p>
 
               {e.posterURL ? (
-                <img
-                  src={e.posterURL}
-                  alt="poster"
-                  style={{
-  width:"100%",
-  marginTop:12,
-  borderRadius:10,
-  maxHeight:"220px",
-  objectFit:"cover"
-}}
-                />
+               <img src={e.posterURL} alt="poster" className="event-image" />
               ) : (
-                <p
-                  style={{
-                    marginTop:10,
-                    color:"red",
-                    fontWeight:"bold"
-                  }}
-                >
-                  No image for poster
-                </p>
+               
+                <p className="no-image">No image for poster</p>
               )}
 
-              <button
-                onClick={()=>toggleLike(e.id)}
-                style={{
-                  marginTop:10,
-                  padding:"8px 14px",
-                  border:"none",
-                  borderRadius:8,
-                  cursor:"pointer",
-                  transition:"0.3s",
-                  transform: likedEvents[e.id] ? "scale(1.1)" : "scale(1)",
-                  background: likedEvents[e.id] ? "#be185d" : "#f9a8d4",
-                  color:"#fff",
-                  fontWeight:"bold",
-                  display:"block"
-                }}
-              >
-                👍 {likedEvents[e.id] ? 1 : 0}
-              </button>
+             <button
+  onClick={() => toggleLike(e.id)}
+  className={`like-btn ${likedEvents[e.id] ? "liked" : ""}`}
+>
+  👍 {likedEvents[e.id] ? 1 : 0}
+</button>
 
             </div>
           ))}
@@ -269,24 +218,3 @@ const toggleLike = async (eventId) => {
     </>
   );
 }
-
-const card = {
-  border: "1px solid #e5e7eb",
-  padding: "18px",
-  marginTop: "20px",
-  borderRadius: "12px",
-  background: "#ffffff",
-  boxShadow: "0 3px 8px rgba(0,0,0,0.08)",
-  maxWidth: "420px",
-  marginLeft: "auto",
-  marginRight: "auto"
-};
-const calendarWrapper = {
-  width: "320px",
-  margin: "20px auto",
-  border: "2px solid #e5e7eb",
-  borderRadius: "12px",
-  padding: "10px",
-  background: "#ffffff",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-};

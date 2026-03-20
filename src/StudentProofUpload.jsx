@@ -12,7 +12,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-
+import { createPortal } from "react-dom";
 
 export default function StudentProofUpload() {
 
@@ -50,6 +50,7 @@ export default function StudentProofUpload() {
 //   setConfirmAction(() => action);
 //   setConfirmOpen(true);
 // };
+
 
 const openConfirm = (type, action) => {
   console.log("Popup triggered:", type);
@@ -357,82 +358,6 @@ const submitProof = async () => {
 };
 
 
-
-//   const submitProof = async () => {
-
-//     // if (!scheme || !purpose || !proofURL) {
-//     //   alert("All mandatory fields must be filled");
-//     //   return;
-//     // }
-//     // VALIDATION
-// if (
-//   !scheme ||
-//   !purpose ||
-//   !proofURL ||
-//   ((purpose === "duty" || purpose === "both") && (!dutyType || !dutyDate)) ||
-//   ((purpose === "activity" || purpose === "both") && (
-//     !activityHead ||
-//     (activityHead === "leadership" && !leadershipRole)
-//   ))
-// ) {
-//   setErrorMsg("⚠ Please fill all required fields.");
-//   return;
-// }
-
-// setErrorMsg("");
-
-//     const data = {
-//       studentId: user.uid,
-//       studentName: user.email,
-//       scheme,
-//       purpose,
-
-//       dutyType,
-//       dutyDate,
-
-//       activityHead,
-//       activity,
-//       level,
-//       duration,
-//       professionalActivity,
-
-
-//       proofURL,
-//       description,
-//       prize,
-
-//       status: "pending",
-//       activityPoints: calculatePoints(),
-//       rejectReason: "",
-//       createdAt: serverTimestamp()
-//     };
- 
-
-//     if (editId) {
-//       await updateDoc(doc(db, "ProofRequests", editId), data);
-//        proofId = editId;
-//       setEditId(null);
-//     } else {
-//         const proofRef = await addDoc(collection(db, "ProofRequests"), data);
-//        proofId = proofRef.id;
-//     }
-       
-// await addDoc(collection(db, "Notifications"), {
-//   receiverRole: "faculty",
-//   studentId: user.uid,
-//   studentName: user.displayName,
-//   purpose: purpose,
-//   description: description,
-//   proofId: proofRef.id,
-//   seen: false,
-//   createdAt: serverTimestamp()
-// });
-    
-
-//     resetForm();
-//     loadProofs(user.uid);
-//   };
-
   const resetForm = () => {
     setScheme("");
     setPurpose("");
@@ -473,13 +398,6 @@ const submitProof = async () => {
     loadProofs(user.uid);
   };
 
-  // const inputStyle = {
-  //   width: "100%",
-  //   padding: 10,
-  //   marginBottom: 12,
-  //   borderRadius: 6,
-  //   border: "1px solid #ccc"
-  // };
   const inputStyle = {
   width: "100%",
   padding: "12px 14px",
@@ -553,12 +471,14 @@ const getMaxPoints = (p) => {
     {errorMsg}
   </div>
 )}
-
+<div className="uploadproof-wrapper">
+      <div className="uploadproof-card">
       <h2>KTU Activity & Duty Leave Upload</h2>
 
       {/* SCHEME */}
     
     <label>
+      <i className="fas fa-graduation-cap"></i>
       Scheme <span style={{ color: "red" }}>*</span>
     </label>
       <select style={inputStyle} value={scheme} onChange={e => setScheme(e.target.value)}>
@@ -784,20 +704,18 @@ const getMaxPoints = (p) => {
       )}
 
       {/* PROOF */}
-      <input
-        style={inputStyle}
-        placeholder="Upload Proof URL"
-        value={proofURL}
-        onChange={e => setProofURL(e.target.value)}
-      />
+     
+<input
+  placeholder="Upload Proof URL"
+  value={proofURL}
+  onChange={e => setProofURL(e.target.value)}
+/>
 
-      <textarea
-        style={{ ...inputStyle, height: 80 }}
-        placeholder="Description (Optional)"
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-      />
-
+<textarea
+  placeholder="Description (Optional)"
+  value={description}
+  onChange={e => setDescription(e.target.value)}
+/>
     
       <button
   style={{
@@ -815,232 +733,114 @@ const getMaxPoints = (p) => {
 >
   {editId ? "Update" : "Submit"}
 </button>
-
-      <hr />
-
-      <h3>My Submissions</h3>
-
-      {[...myProofs]
-.sort((a,b)=>b.createdAt?.seconds - a.createdAt?.seconds)
-.map(p => (
-        <div key={p.id} style={{
-          border: "1px solid #ddd",
-          padding: 12,
-          borderRadius: 8,
-          marginBottom: 12
-        }}>
-        
-          <p><b>Scheme:</b> {p.scheme}</p>
-<p><b>Purpose:</b> {p.purpose}</p>
-
-{p.dutyType && <p><b>Duty Type:</b> {p.dutyType}</p>}
-{p.dutyDate && <p><b>Duty Date:</b> {p.dutyDate}</p>}
-
-{p.activityHead && <p><b>Activity Head:</b> {p.activityHead}</p>}
-{p.activity && <p><b>Activity:</b> {p.activity}</p>}
-{p.level && <p><b>Level:</b> {p.level}</p>}
-{p.professionalActivity && <p><b>Professional:</b> {p.professionalActivity}</p>}
-{p.leadershipRole && <p><b>Role:</b> {p.leadershipRole}</p>}
-
-<p><b>Proof:</b> 
-  <a href={p.proofURL} target="_blank" rel="noreferrer">
-    View Proof
-  </a>
-</p>
-<p><b>Description</b>{p.description}</p>
-<p>
-  <b>Status:</b>{" "}
-  <span
-    style={{
-      color:
-        p.status === "approved"
-          ? "green"
-          : p.status === "rejected"
-          ? "red"
-          : "blue",
-      fontWeight: "bold",
-    }}
-  >
-    {p.status}
-  </span>
-</p>
-
-
-{/* {p.activityPoints > 0 && <p><b>Points:</b> {p.activityPoints}</p>} */}
-
-         {p.purpose !== "duty" && (
-  <div
-    style={{
-      marginTop: 12,
-      padding: 16,
-      borderRadius: 12,
-      backgroundColor: "#f0f9ff",
-      border: "1px solid #bae6fd",
-      boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-    }}
-  >
-   
-
-    <p
-      style={{
-        margin: "6px 0",
-        fontSize: 14,
-        color: "#0369a1",
-      }}
-    >
-      You will receive{" "}
-      <span style={{ fontWeight: 700, color: "#075985" }}>
-        {p.activityPoints}
-      </span>{" "}
-      points for this proof.
-    </p>
-
-    <p
-      style={{
-        margin: "6px 0",
-        fontSize: 14,
-        color: "#0284c7",
-      }}
-    >
-      Maximum points that can be awarded:{" "}
-      <span style={{ fontWeight: 700, color: "#0c4a6e" }}>
-        {getMaxPoints(p)}
-      </span>
-    </p>
-  </div>
-)}
-
-          {p.status === "pending" && (
-            <>
-             <div
-  style={{
-    display: "flex",
-    gap: 10,
-    marginTop: 12,
-  }}
->
-  {/* Edit Button */}
-  <button
-    onClick={() => handleEdit(p)}
-    style={{
-      padding: "6px 14px",
-      borderRadius: 8,
-      border: "1px solid #3b82f6",
-      backgroundColor: "#eff6ff",
-      color: "#1d4ed8",
-      fontWeight: 500,
-      cursor: "pointer",
-      transition: "0.2s",
-    }}
-    onMouseOver={(e) => {
-      e.target.style.backgroundColor = "#dbeafe";
-    }}
-    onMouseOut={(e) => {
-      e.target.style.backgroundColor = "#eff6ff";
-    }}
-  >
-    ✏️ Edit
-  </button>
-
-  {/* Delete Button */}
- <button
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    openConfirm("delete", () => handleDelete(p.id));
-  }}
-  style={{
-    padding: "6px 14px",
-    borderRadius: 8,
-    border: "1px solid #ef4444",
-    backgroundColor: "#fef2f2",
-    color: "#b91c1c",
-    fontWeight: 500,
-    cursor: "pointer",
-    transition: "0.2s",
-  }}
-  onMouseOver={(e) => {
-    e.target.style.backgroundColor = "#fee2e2";
-  }}
-  onMouseOut={(e) => {
-    e.target.style.backgroundColor = "#fef2f2";
-  }}
->
-  🗑 Delete
-</button>
+</div>
 </div>
 
-            </>
-          )}
+      <hr />
+      <h3 className="submission-title">My Submissions</h3>
 
-          {p.rejectReason && <p style={{ color: "red" }}>{p.rejectReason}</p>}
-        </div>
-      ))}
-    {confirmOpen && (
-  <div style={{
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "rgba(0,0,0,0.3)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000
-  }}>
+<div className="submission-container">
+  {[...myProofs]
+    .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+    .map(p => (
+      <div key={p.id} className="submission-card">
 
-    <div style={{
-      background: "#fff",
-      padding: 20,
-      borderRadius: 10,
-      width: 320,
-      boxShadow: "0 5px 20px rgba(0,0,0,0.2)",
-      textAlign: "center"
-    }}>
+        <p><b>Scheme:</b> {p.scheme}</p>
+        <p><b>Purpose:</b> {p.purpose}</p>
 
-      <p style={{ marginBottom: 20, fontWeight: 500 }}>
-        Do you really want to {confirmType} this proof?
-      </p>
+        {p.dutyType && <p><b>Duty Type:</b> {p.dutyType}</p>}
+        {p.dutyDate && <p><b>Duty Date:</b> {p.dutyDate}</p>}
 
-      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        {p.activityHead && <p><b>Activity Head:</b> {p.activityHead}</p>}
+        {p.activity && <p><b>Activity:</b> {p.activity}</p>}
+        {p.level && <p><b>Level:</b> {p.level}</p>}
+        {p.professionalActivity && <p><b>Professional:</b> {p.professionalActivity}</p>}
+        {p.leadershipRole && <p><b>Role:</b> {p.leadershipRole}</p>}
 
-        <button
-          onClick={() => {
-             if (confirmAction) confirmAction();
-          setConfirmOpen(false);
-          }}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 6,
-            border: "none",
-            background: "#2563eb",
-            color: "#fff",
-            cursor: "pointer"
-          }}
-        >
-          Yes
-        </button>
+        <p>
+          <b>Proof:</b>
+          <a href={p.proofURL} target="_blank" rel="noreferrer" className="proof-link">
+            View Proof
+          </a>
+        </p>
 
-        <button
-          onClick={() => setConfirmOpen(false)}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            background: "#f3f4f6",
-            cursor: "pointer"
-          }}
-        >
-          No
-        </button>
+        <p><b>Description:</b> {p.description}</p>
 
+        <p>
+          <b>Status:</b>
+          <span className={`status ${p.status}`}>
+            {p.status}
+          </span>
+        </p>
+
+        {p.purpose !== "duty" && (
+          <div className="points-box">
+            <p>
+              You will receive <b>{p.activityPoints}</b> points
+            </p>
+            <p>
+              Max points: <b>{getMaxPoints(p)}</b>
+            </p>
+          </div>
+        )}
+
+        {p.status === "pending" && (
+          <div className="action-buttons">
+            <button className="edit-btn" onClick={() => handleEdit(p)}>
+              ✏️ Edit
+            </button>
+
+            <button
+              className="delete-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openConfirm("delete", () => handleDelete(p.id));
+              }}
+            >
+              🗑 Delete
+            </button>
+          </div>
+        )}
+
+        {p.rejectReason && (
+          <p className="reject-text">{p.rejectReason}</p>
+        )}
       </div>
-      
-    </div>
+    ))}
+</div>
+ {/* 🔥 MOVE MODAL HERE */}
+   
+      {confirmOpen &&
+  createPortal(
+    <div className="modal-overlay">
+      <div className="modal-box">
+        <p className="modal-text">
+          Do you really want to {confirmType} this proof?
+        </p>
 
-  </div>
-)}
+        <div className="modal-actions">
+          <button
+            className="confirm-btn"
+            onClick={async () => {
+              if (confirmAction) confirmAction();
+              setConfirmOpen(false);
+            }}
+          >
+            Yes
+          </button>
+
+          <button
+            className="cancel-btn"
+            onClick={() => setConfirmOpen(false)}
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body   // 🔥 renders outside everything
+  )}
     </div>
   );
 }  

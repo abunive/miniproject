@@ -8,6 +8,7 @@ import useConfirmBackNavigation from "./useConfirmBackNavigation";
 import StudentDashboardNotifications from "./StudentDashboardNotifications";
 import StudentNotifications from "./StudentNotifications";
 import StudentViewEvents from "./StudentViewEvents";
+import "./studentdas.css";
 
 export default function StudentDashboard() {
     useConfirmBackNavigation(
@@ -103,131 +104,109 @@ useEffect(() => {
   }, [activeTab]);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      {/* SIDEBAR */}
-      <div style={sidebar}>
-        <h3>Student Panel</h3>
-        <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button onClick={() => setActiveTab("events")}>Events</button>
-        <button onClick={() => setActiveTab("proof")}>Upload Proof</button>
-<button onClick={() => setActiveTab("notifications")}>
-  Notifications
-</button>
+  <div className="layout">
+    {/* SIDEBAR */}
+    <div className="sidebar">
+      <h3 className="logo">Student Panel</h3>
 
-        <div style={{ flex: 1 }} />
+      <button
+       className={activeTab === "dashboard" ? "active" : ""}onClick={() => setActiveTab("dashboard")}>
+        <i className="fas fa-home"></i> Dashboard
+       </button>
 
-        <button onClick={handleLogout} style={logoutBtn}>
-          🔓 Logout
-        </button>
-      </div>
+      <button
+        className={activeTab === "events" ? "active" : ""}
+        onClick={() => setActiveTab("events")}
+      >
+       <i className="fas fa-calendar-alt"></i> Events
+      </button>
 
-      {/* CONTENT */}
-      <div style={{ flex: 1, padding: 30 }}>
-        {/* {activeTab === "dashboard" && (
-          <>
-            <h1>Student Dashboard</h1>
-            <h2>Welcome, <b>{studentName}</b></h2>
-            <p>Total Activity Points: 0</p>
-          </>
-        )} */}
-        {activeTab === "dashboard" && (
-  <>
-    <h1>Student Dashboard</h1>
-    <h2>Welcome, <b>{studentName}</b></h2>
-   
+      <button
+        className={activeTab === "proof" ? "active" : ""}
+        onClick={() => setActiveTab("proof")}
+      >
+        <i className="fas fa-upload"></i> Upload Proof
+      </button>
 
-    {/* ✅ SHOW ACTIVITY POINTS */}
-    {auth.currentUser && (
-      <StudentActivityPoints studentId={auth.currentUser.uid} />
-    )}
+      <button
+        className={activeTab === "notifications" ? "active" : ""}
+        onClick={() => setActiveTab("notifications")}
+      >
+        <i className="fas fa-bell"></i> Notifications
+      </button>
 
-    {auth.currentUser && (
-  <StudentDashboardNotifications studentId={auth.currentUser.uid} />
-)}
-    
-  </>
-)}
-{activeTab === "events" && <StudentViewEvents />}
+      <div className="spacer"></div>
+      <hr />
+
+      <button onClick={handleLogout} className="logout-btn">
+        <i className="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+
+    {/* CONTENT */}
+     <div className="main">
+    <div className="content">
+      {activeTab === "dashboard" && (
+        <>
+          <h1>Student Dashboard</h1>
+          <h2>Welcome, <b>{studentName}</b></h2>
+
+          {auth.currentUser && (
+            <StudentActivityPoints studentId={auth.currentUser.uid} />
+          )}
+
+          {auth.currentUser && (
+            <StudentDashboardNotifications studentId={auth.currentUser.uid} />
+          )}
+        </>
+      )}
+
+      {activeTab === "events" && <StudentViewEvents />}
 
       {activeTab === "events" && (
-  <>
-    <h2>Approved Events</h2>
+        <>
+          <h2>Approved Events</h2>
 
-    {loading && <p>Loading events...</p>}
-    {error && <p style={{ color: "red" }}>{error}</p>}
+          {loading && <p>Loading events...</p>}
+          {error && <p className="error">{error}</p>}
 
-    {!loading &&
-      events
-        .filter(e => e.status === "approved")
-        .map(e => (
-          <div key={e.id} style={card}>
-            <h3>{e.title}</h3>
-            <p><b>Date:</b> {e.eventDate}</p>
-            <p>{e.description}</p>
+          {!loading && (
+            <div className="events-container">
+              {events
+                .filter(e => e.status === "approved")
+                .map(e => (
+                  <div key={e.id} className="event-card">
+                    <h3>{e.title}</h3>
+                    <p><b>Date:</b> {e.eventDate}</p>
+                    <p>{e.description}</p>
 
-            {e.posterURL && (
-              <img
-                src={e.posterURL}
-                alt="poster"
-                style={{ width: 200, marginTop: 10 }}
-              />
+                    {e.posterURL && (
+                      <img src={e.posterURL} alt="poster" />
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {!loading &&
+            events.filter(e => e.status === "approved").length === 0 && (
+              <p>No approved events available</p>
             )}
-          </div>
-        ))}
+        </>
+      )}
 
-    {!loading && events.filter(e => e.status === "approved").length === 0 && (
-      <p>No approved events available</p>
-    )}
-  </>
-)}
+      {activeTab === "proof" && (
+        <StudentProofUpload user={auth.currentUser} />
+      )}
 
-
-{activeTab === "proof" && (
-  <StudentProofUpload user={auth.currentUser} />
-)}
-
-{activeTab === "notifications" && (
-  <>
-    {auth.currentUser && (
-      <StudentNotifications studentId={auth.currentUser.uid} />
-    )}
-  </>
-)} 
-
-
-
-
-
-        
-
-      </div>
+      {activeTab === "notifications" && (
+        auth.currentUser && (
+          <StudentNotifications studentId={auth.currentUser.uid} />
+        )
+      )}
     </div>
-  );
+  </div>
+  </div>
+);
 }
-
-/* STYLES */
-const sidebar = {
-  width: 220,
-  background: "#111",
-  color: "#fff",
-  padding: 20,
-  display: "flex",
-  flexDirection: "column",
-  gap: 10
-};
-
-const card = {
-  border: "1px solid #ccc",
-  padding: 15,
-  marginBottom: 15,
-  borderRadius: 8
-};
-
-const logoutBtn = {
-  background: "#dc2626",
-  color: "white",
-  padding: 10,
-  borderRadius: 6,
-  border: "none",
-  fontWeight: "bold"
-};
+  

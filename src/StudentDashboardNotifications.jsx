@@ -58,11 +58,11 @@ export default function StudentDashboardNotifications({ studentId }) {
 
     <div style={{ marginBottom: 25 }}>
 
-      <h2>🔔 New Notifications</h2>
+      <h2><i className="fas fa-bell"></i> New Notifications</h2>
 
-      {notifications.length === 0 && (
-        <p>No new notifications</p>
-      )}
+    {notifications.length === 0 && (
+  <p className="no-notifications">No new notifications</p>
+)}
 
       {notifications.map(n => (
 

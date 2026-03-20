@@ -377,7 +377,7 @@ await addDoc(collection(db, "Events"), {
 
   <div className="sidebar-bottom">
     <button className="logout-btn" onClick={handleLogout}>
-      <i class="fa-solid fa-lock"></i>Logout
+      <i class="fa-solid fa-sign-out-alt"></i>Logout
     </button>
   </div>
 </div>

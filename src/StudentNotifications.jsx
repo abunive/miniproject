@@ -45,7 +45,7 @@ export default function StudentNotifications({ studentId }) {
 
     <div>
 
-      <h2>📜 Notification History</h2>
+      <h2><i className="fas fa-bell"></i> Notification History</h2>
 
       {notifications.length === 0 && (
         <p>No notifications</p>
