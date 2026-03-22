@@ -102,13 +102,8 @@ export default function FacultyViewEvents() {
 
   return (
     <>
-      <h2 style={{
-        textAlign:"center",
-        color:"#be185d",
-        fontWeight:"bold",
-        marginBottom:"10px"
-      }}>
-        Approved Events Calendar
+      <h2>
+         <i></i>Approved Events Calendar
       </h2>
 
       {loading && <p>Loading events...</p>}
@@ -126,7 +121,7 @@ export default function FacultyViewEvents() {
           <h3 style={{
             marginTop:30,
             textAlign:"center",
-            color:"#374151"
+            color:"white"
           }}>
             Events on {selectedDate.toLocaleDateString()}
           </h3>

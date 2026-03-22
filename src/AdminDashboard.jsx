@@ -113,7 +113,7 @@ const [newUser, setNewUser] = useState({
     eventid: "",
     title: "",
     date: "",
-    description: "",
+    description: "", 
     posterURL: "",
     status: "pending"
   });

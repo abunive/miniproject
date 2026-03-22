@@ -21,10 +21,9 @@ import FacultyProofReview from "./FacultyProofReview";
 import FacultyNotifications from "./FacultyNotifications";
 import FacultyDashboardNotifications from "./FacultyDashboardNotifications";
 import FacultyViewEvents from "./FacultyViewEvents";
-
 import { Timestamp } from "firebase/firestore";
-
 import useConfirmBackNavigation from "./useConfirmBackNavigation";
+import "./facultydas.css";
 
 export default function FacultyDashboard() {
    useConfirmBackNavigation(
@@ -40,6 +39,7 @@ export default function FacultyDashboard() {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState("");
   const functions = getFunctions();
+  const [editingEvent, setEditingEvent] = useState(null);
   const [selectedProofId, setSelectedProofId] = useState(null);
   useEffect(() => {
 
@@ -168,35 +168,41 @@ useEffect(() => {
 
 
   /* ---------------- USERS ---------------- */
-  const createUser = async () => {
-    setIsCreatingUser(true);
-    try {
-      const facultyEmail = auth.currentUser.email;
-      const facultyPassword = prompt("Confirm your password");
+const createUser = async () => {
+  setIsCreatingUser(true);
 
-      const cred = await createUserWithEmailAndPassword(
-        auth,
-        newUser.username,
-        newUser.password
-      );
+  try {
+    const facultyEmail = auth.currentUser.email;
+    const facultyPassword = prompt("Confirm your password");
 
-      await setDoc(doc(db, "Users", cred.user.uid), {
-        ...newUser,
-        createdAt: new Date()
-      });
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      newUser.username,
+      newUser.password
+    );
 
-      await signOut(auth);
-      await signInWithEmailAndPassword(auth, facultyEmail, facultyPassword);
+    await setDoc(doc(db, "Users", cred.user.uid), {
+      ...newUser,
+      createdAt: new Date()
+    });
 
-      alert("User created");
-      setShowAddUser(false);
-      loadUsers();
-    } catch (e) {
-      alert(e.message);
-    } finally {
-      setIsCreatingUser(false);
-    }
-  };
+    // 🔥 ADD DELAY (IMPORTANT)
+    await signOut(auth);
+    await new Promise(res => setTimeout(res, 300));
+
+    await signInWithEmailAndPassword(auth, facultyEmail, facultyPassword);
+
+    alert("User created");
+    setShowAddUser(false);
+    loadUsers();
+
+  } catch (e) {
+    console.error(e);
+    alert(e.message);
+  } finally {
+    setTimeout(() => setIsCreatingUser(false), 500);
+  }
+};
 
   const deleteUser = async id => {
     if (!window.confirm("Delete user?")) return;
@@ -245,18 +251,7 @@ const createEvent = async () => {
 };
 
 
-  // const toggleApproval = async (event, action) => {
-  //   let newStatus = "pending";
-
-  //   if (action === "approve") newStatus = "approved";
-  //   if (action === "unapprove") newStatus = "unapproved";
-
-  //   await updateDoc(doc(db, "Events", event.id), {
-  //     status: newStatus
-  //   });
-
-  //   loadEvents();
-  // };
+  
 
   const toggleApproval = async (event, action) => {
   let newStatus = "pending";
@@ -330,29 +325,26 @@ const createEvent = async () => {
 
   /* ---------------- UI ---------------- */
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div  style={{ display: "flex", minHeight: "100vh" }}>
       {/* SIDEBAR */}
-      <div style={sidebar}>
+      <div className="sidebar">
         <h3>Faculty Panel</h3>
-        <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button onClick={() => setActiveTab("users")}>Users</button>
-        <button onClick={() => setActiveTab("events")}>Events</button>
-        <button onClick={() => setActiveTab("proofs")}>Proof Requests</button>
-        <button onClick={() => setActiveTab("notifications")}>Notifications</button>
+        <button onClick={() => setActiveTab("dashboard")}> <i className="fas fa-home"></i>Dashboard</button>
+        <button onClick={() => setActiveTab("users")}> <i className="fas fa-users"></i>Users</button>
+        <button onClick={() => setActiveTab("events")}> <i className="fas fa-calendar-alt"></i>Events</button>
+        <button onClick={() => setActiveTab("proofs")}> <i className="fas fa-file-alt"></i>Proof Requests</button>
+        <button onClick={() => setActiveTab("notifications")}> <i className="fas fa-bell"></i>Notifications</button>
         <div style={{ flex: 1 }} />
-        <button onClick={logout} style={{ background: "red", color: "#fff" }}>
-          Logout
+        <hr />
+        <button onClick={logout}
+        >
+         <i className="fas fa-sign-out-alt"></i> Logout
         </button>
       </div>
 
       {/* CONTENT */}
-      <div style={{ flex: 1, padding: 30 }}>
-        {/* {activeTab === "dashboard" && (
-          <>
-            <h1>Welcome {facultyName}</h1>
-            <p>Faculty dashboard</p>
-          </>
-        )} */}
+      <div className="full-container">
+      
 {activeTab === "dashboard" && (
   <>
     <h1>Welcome {facultyName}</h1>
@@ -364,108 +356,167 @@ const createEvent = async () => {
 )}
 
 
-        {/* USERS */}
+         {/* USERS */}
         {activeTab === "users" && (
           <>
-            <h2>Manage Users</h2>
+                <h2>Manage Users</h2>
+
+<button
+  className="add-user-btn"
+  onClick={() => setShowAddUser(!showAddUser)}
+>
+  <i className="fa-solid fa-plus"></i>
+  {showAddUser ? " Close" : " Add User"}
+</button>
+
+{/* ✅ INLINE FORM (NOT MODAL) */}
+{showAddUser && (
+  <div className="add-user-container">
+    <h3>Add New User</h3>
+
+    <div className="form-grid">
+      <input
+        placeholder="Name"
+        value={newUser.name}
+        onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+      />
+      <br />
+
+      <input
+        placeholder="Email"
+        value={newUser.username}
+        onChange={e => setNewUser({ ...newUser, username: e.target.value })}
+      />
+      <br />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={newUser.password}
+        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+      />
+      <br />
+
+      <select
+        value={newUser.role}
+        onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+      >
+        <option value="student">Student</option>
+        <option value="faculty">Faculty</option>
+        <option value="organizer">Organizer</option>
+      </select>
+    </div>
+
+    <div className="checkbox-row">
+      <label>
+        <input
+          type="checkbox"
+          checked={newUser.isActive}
+          onChange={e =>
+            setNewUser({ ...newUser, isActive: e.target.checked })
+          }
+        />
+        Active
+      </label>
+      <br />
+      <br />
+
+      <label>
+        <input
+          type="checkbox"
+          checked={newUser.canAddEvent}
+          onChange={e =>
+            setNewUser({ ...newUser, canAddEvent: e.target.checked })
+          }
+        />
+        Can Add Event
+      </label>
+    </div>
+
+    <div className="form-actions">
+      <button className="create-btn" onClick={createUser}>
+        Create User
+      </button>
+          <br />
+
+      <button
+        className="cancel-btn"
+        onClick={() => setShowAddUser(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
 
             {["faculty", "organizer", "student"].map(role => (
               <div key={role}>
-                <h3>{role.toUpperCase()}</h3>
-
-                {users
-                  .filter(u => (u.role || "student") === role)
+               <h3 style={{ color: "#ffffff", marginBottom: "10px", textTransform: "uppercase" }}>
+      {role}
+    </h3>
+                                  {users
+                  .filter(u => u.role === role)
                   .map(u => (
-                    <div key={u.id} style={card}>
-                      <b>{String(u.name || "No Name")}</b>
-                      <br />
-                      Email: {String(u.username || "N/A")}
-                      <br />
-                      Active: {String(u.isActive)}
-                      <br />
-                      Role:
-                        {/* <select
-                          value={u.role || "student"}
-                          onChange={e =>
-                            updateDoc(doc(db, "Users", u.id), {
-                              role: e.target.value
-                            }).then(loadUsers)
-                          }
-                          style={{ marginLeft: 10 }}
+                    <div key={u.id} className="user-card">
+                      <b>{u.name || "No Name"}</b>
+
+                      <div className="row">
+                        <span>Uid: {u.username || "N/A"}</span>
+                      
+                      </div>
+                      <div className="row">
+                      
+                        <span>Active: {u.isActive ? "Yes" : "No"}</span>
+                      </div>
+
+                      <div className="row">
+                        <span>Role:</span>
+                        <select
+                          value={u.role}
+                          onChange={e => updateUserRole(u.id, e.target.value)}
                         >
                           <option value="student">Student</option>
-                          <option value="organizer">Organizer</option>
                           <option value="faculty">Faculty</option>
-                        </select> */}
+                          <option value="organizer">Organizer</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
 
-                  <select
-  value={u.role || "student"}
-  onChange={e =>
-    updateDoc(doc(db, "Users", u.id), {
-      role: e.target.value
-    }).then(loadUsers)
-  }
-  style={{
-    marginLeft: 10,
-    padding: "6px 8px",
-    borderRadius: 6
-  }}
->
-  {/* STUDENT */}
-  <option
-    value="student"
-    disabled={currentUserRole === "student"}
-  >
-    Student
-  </option>
+                      <div className="row">
+                        <span>Can Add Event: {u.canAddEvent ? "Yes" : "No"}</span>
+                      </div>
 
-  {/* ORGANIZER */}
-  <option
-    value="organizer"
-    disabled={currentUserRole === "student"}
-  >
-    Organizer
-  </option>
+                      <div className="row">
+                        <button
+                          className={u.isActive ? "deactivate" : "activate"}
+                          onClick={() => toggleActive(u)}
+                        >
+                          {u.isActive ? "Deactivate" : "Activate"}
+                        </button>
 
-  {/* FACULTY */}
-  <option
-    value="faculty"
-    disabled={
-      currentUserRole !== "faculty" ||   // not faculty anymore
-      u.id === currentUserId              // cannot promote yourself back
-    }
-  >
-    Faculty
-  </option>
-</select>
+                        <button
+                          className="event-toggle"
+                          onClick={() => toggleCanAddEvent(u)}
+                        >
+                          {u.canAddEvent ? "Revoke Event Access" : "Approve Event"}
+                        </button>
 
-                
-
-
-                      <br /><br />
-
-                      <button
-                        onClick={() =>
-                          updateDoc(doc(db, "Users", u.id), {
-                            isActive: !u.isActive
-                          }).then(loadUsers)
-                        }
-                      >
-                        {u.isActive ? "Deactivate" : "Activate"}
-                      </button>
-
-                      <button
-                        onClick={() => deleteUser(u.id)}
-                        style={{ marginLeft: 10, background: "red", color: "#fff" }}
-                      >
-                        Remove
-                      </button>
+                        <button
+                          className="deactivate"
+                          onClick={() => deleteUser(u.id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                ))}
+              
               </div>
             ))}
           </>
         )}
+        
 
         {/* EVENTS */}
         {activeTab === "events" && <FacultyViewEvents/>}
@@ -473,58 +524,72 @@ const createEvent = async () => {
           <>
             <h2>Manage Events</h2>
 
-            <button onClick={() => setShowAddEvent(true)}>  ➕ Add Event</button>
+            <button onClick={() => setShowAddEvent(true)}>  <i class="fa-solid fa-plus"></i> Add Event</button>
 
             {showAddEvent && (
               <div style={{ background: "#ffffff", padding: 24, marginTop: 20, borderRadius: 14, maxWidth: 420, boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }}>
                 <h3> + Add  Event</h3>
+                <div className="event-form">
 
-                <input
-                  placeholder="Event ID"
-                  value={newEvent.eventid}
-                  onChange={e =>
-                    setNewEvent({ ...newEvent, eventid: e.target.value })
-                  }
-                  style={input}
-                />
+  <div className="form-group">
+    <label>Event ID</label>
+    <input
+      placeholder="Enter Event ID"
+      value={newEvent.eventid}
+      onChange={e =>
+        setNewEvent({ ...newEvent, eventid: e.target.value })
+      }
+    />
+  </div>
 
-                <input
-                  placeholder="Event Title"
-                  value={newEvent.title}
-                  onChange={e =>
-                    setNewEvent({ ...newEvent, title: e.target.value })
-                  }
-                  style={input}
-                />
+  <div className="form-group">
+    <label>Event Title</label>
+    <input
+      placeholder="Enter Event Title"
+      value={newEvent.title}
+      onChange={e =>
+        setNewEvent({ ...newEvent, title: e.target.value })
+      }
+    />
+  </div>
 
-                <input
-                  type="date"
-                  value={newEvent.date}
-                  onChange={e =>
-                    setNewEvent({ ...newEvent, date: e.target.value })
-                  }
-                  style={input}
-                />
+  <div className="form-group">
+    <label>Date</label>
+    <input
+      type="date"
+      value={newEvent.date}
+      onChange={e =>
+        setNewEvent({ ...newEvent, date: e.target.value })
+      }
+    />
+  </div>
 
-                <textarea
-                  placeholder="Event Description"
-                  value={newEvent.description}
-                  onChange={e =>
-                    setNewEvent({ ...newEvent, description: e.target.value })
-                  }
-                  style={{ ...input, height: 90 }}
-                />
+  <div className="form-group">
+    <label>Description</label>
+    <textarea
+      placeholder="Enter event description..."
+      value={newEvent.description}
+      onChange={e =>
+        setNewEvent({ ...newEvent, description: e.target.value })
+      }
+    />
+  </div>
 
-                <input
-                  placeholder="Poster Image URL"
-                  value={newEvent.posterURL}
-                  onChange={e =>
-                    setNewEvent({ ...newEvent, posterURL: e.target.value })
-                  }
-                  style={input}
-                />
+  <div className="form-group">
+    <label>Poster URL</label>
+    <input
+      placeholder="Paste image link"
+      value={newEvent.posterURL}
+      onChange={e =>
+        setNewEvent({ ...newEvent, posterURL: e.target.value })
+      }
+    />
+  </div>
 
-                  <div style={{ display: "flex", gap: "12px", marginTop: 12 }}>
+</div>
+
+
+   <div style={{ display: "flex", gap: "12px", marginTop: 12 }}>
   <button onClick={createEvent} style={primaryBtn}>
     Create Event
   </button>
@@ -560,70 +625,169 @@ const createEvent = async () => {
 
 
               </div>
+          
             )}
+            <br />
+            <br />
+
+            {editingEvent && (
+  
+  <div className="edit-event-box">
+    <br />
+    <h3>Edit Event</h3>
+
+
+    <div className="edit-event-form">
+
+  <div className="form-group">
+    <label>Event Title</label>
+    <input
+      type="text"
+      value={editingEvent.title || ""}
+      onChange={e =>
+        setEditingEvent({ ...editingEvent, title: e.target.value })
+      }
+      placeholder="Enter event title"
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Event Date</label>
+    <input
+      type="date"
+      value={editingEvent.date || ""}
+      onChange={e =>
+        setEditingEvent({ ...editingEvent, date: e.target.value })
+      }
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Description</label>
+    <textarea
+      value={editingEvent.description || ""}
+      onChange={e =>
+        setEditingEvent({
+          ...editingEvent,
+          description: e.target.value
+        })
+      }
+      placeholder="Write event details..."
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Poster URL</label>
+    <input
+      type="text"
+      value={editingEvent.posterURL || ""}
+      onChange={e =>
+        setEditingEvent({
+          ...editingEvent,
+          posterURL: e.target.value
+        })
+      }
+      placeholder="Paste image link"
+    />
+  </div>
+
+</div>
+
+    <div className="event-actions">
+      <button
+        className="btn-primary"
+        onClick={async () => {
+          await updateDoc(
+            doc(db, "Events", editingEvent.id),
+            editingEvent
+          );
+          setEditingEvent(null);
+          loadEvents();
+        }}
+      >
+        <i className="fas fa-save"></i> Save
+      </button>
+
+      <button
+        className="btn-cancel"
+        onClick={() => setEditingEvent(null)}
+      >
+        <i className="fas fa-times"></i> Cancel
+      </button>
+    </div>
+  </div>
+)}
 
             {/* EVENTS LIST */}
-          {events.map(e => (
-  <div key={e.id} style={card}>
-    <h3>{String(e.title || "No Title")}</h3>
+        <div className="events-grid">
+  {events.map(e => (
+    <div key={e.id} className="event-card">
 
-    <p><b>Event ID:</b> {String(e.eventid || "N/A")}</p>
+      {/* HEADER */}
+      <div className="event-header">
+        <h3>{e.title || "No Title"}</h3>
+        <span className={`status ${e.status}`}>
+          {e.status || "pending"}
+        </span>
+      </div>
 
-    <p>
-      <b>Date:</b> {formatDate(e.date)}
-    </p>
-    <p>
-  <b>Interested Students:</b> {e.interestCount || 0}
-</p>
+      {/* BODY */}
+      <div className="event-body">
+        <p><strong>ID:</strong> {e.eventid || "N/A"}</p>
+        <p><strong>Date:</strong> {formatDate(e.date)}</p>
+        <p><strong>Interested:</strong> {e.interestCount || 0}</p>
+        <p> <strong>Description:</strong> {e.description || "No description"} </p>
+      </div>
 
-    <p>
-      <b>Status:</b>{" "}
-      <span style={statusStyle(e.status)}>
-        {String(e.status || "pending")}
-      </span>
-    </p>
+      {/* DESCRIPTION */}
+      <p className="event-desc">
+      
+      </p>
 
-    <p>
-      <b>Description:</b>{" "}
-      {String(e.description || "No description")}
-    </p>
+      {/* IMAGE */}
+      {e.posterURL && (
+        <img src={e.posterURL} alt="poster" />
+      )}
 
-    {typeof e.posterURL === "string" && e.posterURL && (
-      <img
-        src={e.posterURL}
-        alt="Event Poster"
-        style={{ width: "100%", maxWidth: 320, borderRadius: 8, marginTop: 10 }}
-      />
-    )}
+      {/* ACTIONS */}
+      <div className="event-actions">
 
-    <br />
+        {e.status !== "approved" && (
+          <button
+            className="btn-approve"
+            onClick={() => toggleApproval(e, "approve")}
+          >
+            <i className="fas fa-check"></i> Approve
+          </button>
+        )}
 
-    {e.status !== "approved" && (
-      <button
-        onClick={() => toggleApproval(e, "approve")}
-        style={primaryBtn}
-      >
-        Approve
-      </button>
-    )}
+        {e.status !== "unapproved" && (
+          <button
+            className="btn-unapprove"
+            onClick={() => toggleApproval(e, "unapprove")}
+          >
+            <i className="fas fa-times"></i> Unapprove
+          </button>
+        )}
+         {/* ✏️ EDIT BUTTON */}
+  <button
+    className="btn-edit"
+    onClick={() => setEditingEvent(e)}
+  >
+    <i className="fas fa-edit"></i> Edit
+  </button>
 
-    {e.status !== "unapproved" && (
-      <button
-        onClick={() => toggleApproval(e, "unapprove")}
-        style={{ ...dangerBtn, marginLeft: 10 }}
-      >
-        Unapprove
-      </button>
-    )}
+        <button
+          className="btn-delete"
+          onClick={() => deleteEvent(e.id)}
+        >
+          <i className="fas fa-trash"></i> Delete
+        </button>
+      </div>
 
-    <button
-      onClick={() => deleteEvent(e.id)}
-      style={{ ...dangerBtn, marginLeft: 10 }}
-    >
-      Delete
-    </button>
-  </div>
-))}
+    </div>
+  ))}
+</div>
 
           </>
         )}
@@ -674,10 +838,21 @@ const primaryBtn = {
 };
 
 const dangerBtn = {
-  background: "#dc2626",
   color: "#fff",
   border: "none",
   padding: "6px 12px",
   borderRadius: 6,
   cursor: "pointer"
+};
+const modal = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  background: "rgba(0,0,0,0.7)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 9999
 };
