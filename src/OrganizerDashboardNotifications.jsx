@@ -52,9 +52,9 @@ export default function OrganizerDashboardNotifications({ onOpenEvent }) {
   return (
     <div style={{ marginTop: 30 }}>
 
-      <h2>🔔 Event Notifications</h2>
+      <h2 className="notification-heading"  > <i className="fas fa-bell"></i> Event Notifications</h2>
 
-      {notifications.length === 0 && <p>No new notifications</p>}
+      {notifications.length === 0 && <p   style={{color:"#fff"}}>No new notifications</p>}
 
       {notifications.map(n => (
         <div

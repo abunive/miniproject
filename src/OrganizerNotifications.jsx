@@ -57,7 +57,7 @@ export default function OrganizerNotificationHistory() {
   return (
     <div>
 
-      <h2>Notification History</h2>
+      <h2> <i className="fas fa-bell"></i>Notification History</h2>
 
       {notifications.map(n => (
         <div key={n.id} style={{

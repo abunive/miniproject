@@ -18,7 +18,7 @@ import { Timestamp } from "firebase/firestore";
 import { query, orderBy } from "firebase/firestore";
 import OrganizerDashboardNotifications from "./OrganizerDashboardNotifications";
 import OrganizerNotifications from "./OrganizerNotifications";
-
+import "./organizerdas.css";
 
 
 
@@ -190,23 +190,7 @@ export default function OrganizerDashboard() {
       finalPosterURL = await getDownloadURL(imgRef);
     }
 
-    // await addDoc(collection(db, "Events"), {
-    //   eventid: newEvent.eventid,
-    //   title: newEvent.title,
-    //   // date: newEvent.date,
-    //   date: Timestamp.fromDate(new Date(newEvent.date)),
-
-    //   description: newEvent.description,
-    //   posterURL: finalPosterURL,
-
-    //   status: currentUserRole === "admin" || currentUserRole === "faculty"
-    //     ? "approved"
-    //     : "pending",
-
-    //   createdBy: auth.currentUser.uid,
-    //   createdByRole: currentUserRole,
-    //   createdAt: new Date()
-    // });
+   
 
     const eventRef = await addDoc(collection(db, "Events"), {
   eventid: newEvent.eventid,
@@ -278,35 +262,31 @@ usersSnap.forEach(async (userDoc) => {
   
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="layout">
       {/* SIDEBAR */}
-      <div style={sidebar}>
+      <div className="sidebar">
         <h3>Organizer Panel</h3>
-        <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button onClick={() => setActiveTab("events")}>Manage Events</button>
-       <button onClick={() => setActiveTab("notifications")}>
-  Notifications
-</button>
+        <button onClick={() => setActiveTab("dashboard")}> <i className="fas fa-home"></i>Dashboard</button>
+        <button onClick={() => setActiveTab("events")}> <i className="fas fa-calendar-alt"></i>Manage Events</button>
+        <button onClick={() => setActiveTab("notifications")}> <i className="fas fa-bell"></i>Notifications</button>
         <div style={{ flex: 1 }}></div>
+        <hr />
+        
          <button
     onClick={handleLogout}
-    style={{
-      background: "#dc2626",
-      color: "white",
-      marginTop: 20,
-      padding: "10px",
-      borderRadius: 6,
-      fontWeight: "bold"
-    }}
+   
   >
-    🔓 Logout
+     <i className="fas fa-sign-out-alt"></i>Logout
   </button>
       </div>
-
+<div className="background" style={{background: ""}}>
+      <div 
+  className="full-container" 
+  
+>
       {/* CONTENT */}
-      <div style={{ flex: 1, padding: 30 }}>
        {activeTab === "dashboard" && (
-  <>
+         <>
     <h1>Organizer Dashboard</h1>
     <h2>Welcome, <b>{organizerName}</b></h2>
 
@@ -323,48 +303,93 @@ usersSnap.forEach(async (userDoc) => {
         {activeTab === "events" && (
           <>
             <h2>Manage Events</h2>
-            <button onClick={() => setShowAddEvent(true)}>➕ Add Event</button>
+<div className="page-container">
+            <br />
+            <button onClick={() => setShowAddEvent(true)}> <i className="fas fa-plus"></i> Add Event</button>
 
-          <input
-  style={inputStyle}
-  placeholder="Event ID"
-  onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
-/>
+          
 
-<select
-  style={selectStyle}
-  value={newEvent.title}
-  onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
+  {/* CREATE EVENT DIVISION */}
+  <div
+  className="create-event-division"
+  style={{
+    backgroundColor: "#ffffff",
+    padding: "25px",
+    borderRadius: "18px",
+    maxWidth: "520px",
+    margin: "20px auto",
+    boxShadow: "0 12px 40px rgba(0,0,0,0.1)"
+  }}
 >
-  <option value="">Select Event Type</option>
-  <option value="Arts">Arts</option>
-  <option value="Sports">Sports</option>
-  <option value="Workshops">Workshops</option>
-</select>
 
-<input
-  type="date"
-  style={inputStyle}
-  value={newEvent.date}
-  onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
-/>
+    <h2 className="event-title" style={{color:"black"}}>Create Event</h2>
+    <br />
 
+    <div className="form-group">
+      <label>Event ID</label>
+      <input
+        type="text"
+        placeholder="Enter event ID"
+        value={newEvent.eventid || ""}
+        onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
+      />
+    </div>
 
-<input
-  style={inputStyle}
-  placeholder="Poster URL"
-  onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}
-/>
+    <div className="form-group">
+      <label>Event Type</label>
+      <select
+        value={newEvent.title || ""}
+        onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
+      >
+        <option value="">Select Event Type</option>
+        <option value="Arts">Arts</option>
+        <option value="Sports">Sports</option>
+        <option value="Workshops">Workshops</option>
+      </select>
+    </div>
 
-<textarea
-  style={textareaStyle}
-  placeholder="Description"
-  onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
-/>
+    <div className="form-group">
+      <label>Date</label>
+      <input
+        type="date"
+        value={newEvent.date || ""}
+        onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
+      />
+    </div>
 
-<button style={primaryBtn} onClick={createEvent}>Create Event</button>
-<button style={secondaryBtn} onClick={() => setShowAddEvent(false)}>Cancel</button>
+    <div className="form-group">
+      <label>Poster URL</label>
+      <input
+        type="text"
+        placeholder="Paste image URL"
+        value={newEvent.posterURL || ""}
+        onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}
+      />
+    </div>
 
+    <div className="form-group">
+      <label>Description</label>
+      <textarea
+        placeholder="Write event details..."
+        value={newEvent.description || ""}
+        onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
+      />
+    </div>
+
+    <div className="button-group">
+  <button className="btn primary" onClick={createEvent}>
+    Create Event
+  </button>
+  <button className="btn secondary" onClick={() => setShowAddEvent(false)}>
+    Cancel
+  </button>
+</div>
+
+  </div>
+
+</div>
+<br />
+<br />
 
 
 
@@ -372,72 +397,94 @@ usersSnap.forEach(async (userDoc) => {
     <div style={modal}>
       <h3>Edit Event</h3>
 
-      <input
-        value={editingEvent.title || ""}
-        onChange={e =>
-          setEditingEvent({ ...editingEvent, title: e.target.value })
-        }
-        placeholder="Title"
-      />
+     <div className="form-container">
 
-      <input
-        value={editingEvent.date || ""}
-        onChange={e =>
-          setEditingEvent({ ...editingEvent, date: e.target.value })
-        }
-        placeholder="Date"
-      />
+  <div className="form-group">
+    <label>Title</label>
+    <input
+      className="input"
+      value={editingEvent.title || ""}
+      onChange={e =>
+        setEditingEvent({ ...editingEvent, title: e.target.value })
+      }
+      placeholder="Enter event title"
+    />
+  </div>
 
-      <input
-        value={editingEvent.posterURL || ""}
-        onChange={e =>
-          setEditingEvent({ ...editingEvent, posterURL: e.target.value })
-        }
-        placeholder="Poster URL"
-      />
+  <div className="form-group">
+    <label>Date</label>
+    <input
+      type="date"
+      className="input"
+      value={
+        editingEvent.date?.toDate
+          ? editingEvent.date.toDate().toISOString().split("T")[0]
+          : editingEvent.date || ""
+      }
+      onChange={e =>
+        setEditingEvent({
+          ...editingEvent,
+          date: e.target.value
+        })
+      }
+    />
+  </div>
 
-      <textarea
-        value={editingEvent.description || ""}
-        onChange={e =>
-          setEditingEvent({ ...editingEvent, description: e.target.value })
-        }
-        placeholder="Description"
-      />
-      <input
-      placeholder="Poster Image URL (optional)"
-        value={posterURL}
-    onChange={e => setPosterURL(e.target.value)}
-      />
+  <div className="form-group">
+    <label>Poster URL</label>
+    <input
+      className="input"
+      value={editingEvent.posterURL || ""}
+      onChange={e =>
+        setEditingEvent({ ...editingEvent, posterURL: e.target.value })
+      }
+      placeholder="Paste image URL"
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Description</label>
+    <textarea
+      className="textarea"
+      value={editingEvent.description || ""}
+      onChange={e =>
+        setEditingEvent({ ...editingEvent, description: e.target.value })
+      }
+      placeholder="Write event details..."
+    />
+  </div>
+
+</div>
 
         <br /><br />
 
-      {/* <input
-      type="file"
-      accept="image/*"
-      onChange={e => setPosterFile(e.target.files[0])}
-      /> */}
 
 
       <br /><br />
 
-      <button
-        onClick={async () => {
-          await updateDoc(doc(db, "Events", editingEvent.id), editingEvent);
-          setEditingEvent(null);
-          loadEvents();
-        }}
-      >
-        Save
-      </button>
+     <div className="button-row">
+  <button
+    className="save-btn"
+    onClick={async () => {
+      await updateDoc(doc(db, "Events", editingEvent.id), editingEvent);
+      setEditingEvent(null);
+      loadEvents();
+    }}
+  >
+    <i fontawesome="fa fa-save"></i> Save
+  </button>
 
-      <button
-        onClick={() => setEditingEvent(null)}
-        style={{ marginLeft: 10 }}
-      >
-        Cancel
-      </button>
+  <button
+    className="cancel-btn"
+    onClick={() => setEditingEvent(null)}
+  >
+    Cancel
+  </button>
+</div>
     </div>
   )}
+  <br />
+  <br />
 
 
 
@@ -538,6 +585,7 @@ usersSnap.forEach(async (userDoc) => {
 
      {activeTab === "notifications" && <OrganizerNotifications onOpenEvent={handleOpenEvent} />}
       </div>
+    </div>
     </div>
   );
 }

@@ -602,10 +602,21 @@ await addDoc(collection(db, "Events"), {
       onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
     />
 
-    <input
+    {/* <input
       placeholder="Title"
       onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
-    />
+    /> */}
+    <select
+  value={newEvent.eventType || ""}
+  onChange={e =>
+    setNewEvent({ ...newEvent, eventType: e.target.value })
+  }
+>
+  <option value="">Select Event Type</option>
+  <option value="Arts">Arts</option>
+  <option value="Sports">Sports</option>
+  <option value="Workshops">Workshops</option>
+</select>
 
     <input
       type="date"
