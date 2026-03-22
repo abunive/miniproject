@@ -4,68 +4,70 @@ import {
   collection,
   query,
   where,
-  getDocs,
+  onSnapshot,
   updateDoc,
   doc
 } from "firebase/firestore";
 
 export default function StudentDashboardNotifications({ studentId }) {
-
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-
     if (!studentId) return;
 
-    const loadNotifications = async () => {
+    // Debugging log
+    console.log("Listening notifications for studentId:", studentId);
 
-      const q = query(
-        collection(db, "Notifications"),
-        where("receiverRole", "==", "student"),
-        where("receiverId", "==", studentId),
-        where("seen", "==", false)
-      );
+    const notificationsRef = collection(db, "Notifications");
 
-      const snap = await getDocs(q);
+    // Query: unseen notifications for this student
+    const q = query(
+      notificationsRef,
+      where("receiverRole", "==", "student"),
+      where("receiverId", "==", studentId),
+      where("seen", "==", false)
+    );
 
-      setNotifications(
-        snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-      );
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        const notifData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        console.log("Notifications received:", notifData);
+        setNotifications(notifData);
+      },
+      (error) => {
+        console.error("Error fetching notifications:", error);
+      }
+    );
 
-    };
-
-    loadNotifications();
-
+    return () => unsubscribe();
   }, [studentId]);
 
-
-
   const openNotification = async (n) => {
+    try {
+      // Mark as seen
+      await updateDoc(doc(db, "Notifications", n.id), { seen: true });
 
-    await updateDoc(doc(db, "Notifications", n.id), {
-      seen: true
-    });
-
-    window.location.href = `/student-dashboard?proof=${n.proofId}`;
+      // Redirect to proof if proofId exists
+      if (n.proofId) {
+        window.location.href = `/student-dashboard?proof=${n.proofId}`;
+      }
+    } catch (err) {
+      console.error("Error updating notification:", err);
+    }
   };
 
-
-
   return (
-
     <div style={{ marginBottom: 25 }}>
+      <h2>
+        <i className="fas fa-bell"></i> New Notifications
+      </h2>
 
-      <h2><i className="fas fa-bell"></i> New Notifications</h2>
+      {notifications.length === 0 && (
+        <p className="no-notifications">No new notifications</p>
+      )}
 
-    {notifications.length === 0 && (
-  <p className="no-notifications">No new notifications</p>
-)}
-
-      {notifications.map(n => (
-
+      {notifications.map((n) => (
         <div
           key={n.id}
           onClick={() => openNotification(n)}
@@ -75,19 +77,25 @@ export default function StudentDashboardNotifications({ studentId }) {
             borderRadius: 8,
             marginBottom: 10,
             cursor: "pointer",
-            background: "#dbeafe"
+            background: "#dbeafe",
           }}
         >
-
-          <p><b>Purpose:</b> {n.purpose}</p>
-          <p><b>Description:</b> {n.description}</p>
-          <p><b>Status:</b> {n.status}</p>
-
+          <p>
+            <b>Purpose:</b> {n.purpose}
+          </p>
+          <p>
+            <b>Description:</b> {n.description}
+          </p>
+          <p>
+            <b>Status:</b> {n.status}
+          </p>
+          {n.rejectReason && (
+            <p>
+              <b>Reject Reason:</b> {n.rejectReason}
+            </p>
+          )}
         </div>
-
       ))}
-
     </div>
-
   );
 }

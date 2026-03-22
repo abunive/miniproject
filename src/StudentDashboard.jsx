@@ -178,7 +178,7 @@ useEffect(() => {
                   <div key={e.id} className="event-card">
                     <h3>{e.title}</h3>
                     <p><b>Date:</b> {e.eventDate}</p>
-                    <p>{e.description}</p>
+                    <p><b>Description:</b> {e.description}</p>
 
                     {e.posterURL && (
                       <img src={e.posterURL} alt="poster" />

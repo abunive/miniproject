@@ -499,8 +499,10 @@ const getMaxPoints = (p) => {
       </select>
 
       {/* DUTY LEAVE SECTION */}
-      {(purpose === "duty" ) && (
+      {(purpose === "duty" || purpose === "both") && (
         <>
+        <div className="dutyleave" style={{width:"95%"}}>
+
        <label>
       Duty Leave purpose <span style={{ color: "red" }}>*</span>
     </label>
@@ -509,17 +511,18 @@ const getMaxPoints = (p) => {
             placeholder="Duty Leave Purpose (sports/arts/workshop...)"
             value={dutyType}
             onChange={e => setDutyType(e.target.value)}
-          />
+            />
            <label>
       Date <span style={{ color: "red" }}>*</span>
     </label>
           <input
           
-            style={inputStyle}
-            type="date"
-            value={dutyDate}
-            onChange={e => setDutyDate(e.target.value)}
+          style={inputStyle}
+          type="date"
+          value={dutyDate}
+          onChange={e => setDutyDate(e.target.value)}
           />
+          </div>
         </>
       )}
 
@@ -704,7 +707,7 @@ const getMaxPoints = (p) => {
       )}
 
       {/* PROOF */}
-     
+   <div className="upproof-description" style={{width :"95%"}}>
 <input
   placeholder="Upload Proof URL"
   value={proofURL}
@@ -716,6 +719,7 @@ const getMaxPoints = (p) => {
   value={description}
   onChange={e => setDescription(e.target.value)}
 />
+  </div>  
     
       <button
   style={{
@@ -820,22 +824,24 @@ const getMaxPoints = (p) => {
         </p>
 
         <div className="modal-actions">
-          <button
-            className="confirm-btn"
-            onClick={async () => {
-              if (confirmAction) confirmAction();
-              setConfirmOpen(false);
-            }}
-          >
-            Yes
-          </button>
+          <div className="modal-actions">
+  <button
+    className="confirm-btn"
+    onClick={async () => {
+      if (confirmAction) await confirmAction();
+      setConfirmOpen(false);
+    }}
+  >
+    ✔ Yes, Confirm
+  </button>
 
-          <button
-            className="cancel-btn"
-            onClick={() => setConfirmOpen(false)}
-          >
-            No
-          </button>
+  <button
+    className="cancel-btn"
+    onClick={() => setConfirmOpen(false)}
+  >
+    ✖ Cancel
+  </button>
+</div>
         </div>
       </div>
     </div>,

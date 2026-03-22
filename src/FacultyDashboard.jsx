@@ -250,10 +250,7 @@ const createEvent = async () => {
   loadEvents(); // 🔥 reload from Firestore
 };
 
-
-  
-
-  const toggleApproval = async (event, action) => {
+const toggleApproval = async (event, action) => {
   let newStatus = "pending";
   let message = "";
 
@@ -267,30 +264,22 @@ const createEvent = async () => {
     message = `Your event "${event.title}" was unapproved`;
   }
 
-  // ✅ Update event status
-  await updateDoc(doc(db, "Events", event.id), {
-    status: newStatus
-  });
+  await updateDoc(doc(db, "Events", event.id), { status: newStatus });
 
-  // ❗ FIX: CHECK BEFORE USING
-  if (!event.createdBy) {
-    console.error("❌ createdBy missing for event:", event.id);
-    alert("This event has no organizer (old data). Notification skipped.");
-    return;
+  // Send notification only if createdBy exists
+  if (event.createdBy) {
+    await addDoc(collection(db, "Notifications"), {
+      receiverId: event.createdBy,
+      receiverRole: "organizer",
+      type: "event_status",
+      message,
+      eventId: event.id,
+      title: event.title,
+      description: event.description,
+      seen: false,
+      createdAt: Timestamp.now()
+    });
   }
-
-  // 🔔 Send notification safely
-  await addDoc(collection(db, "Notifications"), {
-    receiverId: event.createdBy,
-    receiverRole: "organizer",
-    type: "event_status",
-    message: message,
-    eventId: event.id,
-    title: event.title,
-    description: event.description,
-    seen: false,
-    createdAt: Timestamp.now()
-  });
 
   loadEvents();
 };
@@ -526,10 +515,81 @@ const createEvent = async () => {
 
             <button onClick={() => setShowAddEvent(true)}>  <i class="fa-solid fa-plus"></i> Add Event</button>
 
-            {showAddEvent && (
-              <div style={{ background: "#ffffff", padding: 24, marginTop: 20, borderRadius: 14, maxWidth: 420, boxShadow: "0 10px 25px rgba(0,0,0,0.12)" }}>
-                <h3> + Add  Event</h3>
-                <div className="event-form">
+              {/* Add Event Form */}
+{showAddEvent && (
+  <div className="add-event-modal">
+    <h3>+ Add Event</h3>
+    <div className="event-form">
+      <div className="form-group">
+        <label>Event ID</label>
+        <input
+          placeholder="Enter Event ID"
+          value={newEvent.eventid}
+          onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })} style={{color:"grey"}}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Title</label>
+        <input
+          placeholder="Enter Event Title"
+          value={newEvent.title}
+          onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}style={{color:"grey"}}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Date</label>
+        <input
+          type="date"
+          value={newEvent.date}
+          onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}style={{color:"grey"}}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Description</label>
+        <textarea
+          placeholder="Enter event description..."
+          value={newEvent.description}
+          onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}style={{color:"grey"}}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Poster URL</label>
+        <input
+          placeholder="Paste image link"
+          value={newEvent.posterURL}
+          onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}style={{color:"grey"}}
+        />
+      </div>
+
+      <div className="form-actions">
+        <button className="btn-primary" onClick={createEvent}>
+          Create Event
+        </button>
+        <button
+          className="btn-cancel"
+          onClick={() => setShowAddEvent(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+            <br />
+            <br />
+
+            {editingEvent && (
+  
+  <div className="edit-event-box">
+    <br />
+    <h3>Edit Event</h3>
+
+
+  <div className="event-form">
 
   <div className="form-group">
     <label>Event ID</label>
@@ -539,6 +599,7 @@ const createEvent = async () => {
       onChange={e =>
         setNewEvent({ ...newEvent, eventid: e.target.value })
       }
+      style={{ color: "#000" }} // <-- black text
     />
   </div>
 
@@ -550,6 +611,7 @@ const createEvent = async () => {
       onChange={e =>
         setNewEvent({ ...newEvent, title: e.target.value })
       }
+      style={{ color: "#000" }} // <-- black text
     />
   </div>
 
@@ -561,6 +623,7 @@ const createEvent = async () => {
       onChange={e =>
         setNewEvent({ ...newEvent, date: e.target.value })
       }
+      style={{ color: "#000" }} // <-- black text
     />
   </div>
 
@@ -572,6 +635,7 @@ const createEvent = async () => {
       onChange={e =>
         setNewEvent({ ...newEvent, description: e.target.value })
       }
+      style={{ color: "#000" }} // <-- black text
     />
   </div>
 
@@ -583,138 +647,34 @@ const createEvent = async () => {
       onChange={e =>
         setNewEvent({ ...newEvent, posterURL: e.target.value })
       }
+      style={{ color: "#000" }} // <-- black text
     />
   </div>
 
 </div>
 
-
-   <div style={{ display: "flex", gap: "12px", marginTop: 12 }}>
-  <button onClick={createEvent} style={primaryBtn}>
-    Create Event
-  </button>
-
-  <button 
-    onClick={() => {
-      setShowAddEvent(false);
-      setNewEvent({
-        eventid: "",
-        title: "",
-        date: "",
-        description: "",
-        posterURL: "",
-        status: "pending"
-      });
-    }}
-    style={{ 
-      ...dangerBtn, 
-      background: "#f97316", 
-      padding: "10px 18px", 
-      borderRadius: 8, 
-      fontWeight: "bold", 
-      cursor: "pointer"
+<div className="event-actions">
+  <button
+    className="btn-primary"
+    onClick={async () => {
+      await updateDoc(
+        doc(db, "Events", editingEvent.id),
+        editingEvent
+      );
+      setEditingEvent(null);
+      loadEvents();
     }}
   >
-    Cancel
+    <i className="fas fa-save"></i> Save
+  </button>
+
+  <button
+    className="btn-cancel"
+    onClick={() => setEditingEvent(null)}
+  >
+    <i className="fas fa-times"></i> Cancel
   </button>
 </div>
-
-
-
-
-
-
-              </div>
-          
-            )}
-            <br />
-            <br />
-
-            {editingEvent && (
-  
-  <div className="edit-event-box">
-    <br />
-    <h3>Edit Event</h3>
-
-
-    <div className="edit-event-form">
-
-  <div className="form-group">
-    <label>Event Title</label>
-    <input
-      type="text"
-      value={editingEvent.title || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, title: e.target.value })
-      }
-      placeholder="Enter event title"
-    />
-  </div>
-
-  <div className="form-group">
-    <label>Event Date</label>
-    <input
-      type="date"
-      value={editingEvent.date || ""}
-      onChange={e =>
-        setEditingEvent({ ...editingEvent, date: e.target.value })
-      }
-    />
-  </div>
-
-  <div className="form-group">
-    <label>Description</label>
-    <textarea
-      value={editingEvent.description || ""}
-      onChange={e =>
-        setEditingEvent({
-          ...editingEvent,
-          description: e.target.value
-        })
-      }
-      placeholder="Write event details..."
-    />
-  </div>
-
-  <div className="form-group">
-    <label>Poster URL</label>
-    <input
-      type="text"
-      value={editingEvent.posterURL || ""}
-      onChange={e =>
-        setEditingEvent({
-          ...editingEvent,
-          posterURL: e.target.value
-        })
-      }
-      placeholder="Paste image link"
-    />
-  </div>
-
-</div>
-
-    <div className="event-actions">
-      <button
-        className="btn-primary"
-        onClick={async () => {
-          await updateDoc(
-            doc(db, "Events", editingEvent.id),
-            editingEvent
-          );
-          setEditingEvent(null);
-          loadEvents();
-        }}
-      >
-        <i className="fas fa-save"></i> Save
-      </button>
-
-      <button
-        className="btn-cancel"
-        onClick={() => setEditingEvent(null)}
-      >
-        <i className="fas fa-times"></i> Cancel
-      </button>
-    </div>
   </div>
 )}
 

@@ -57,125 +57,71 @@ setAllProofs(data);
 //     loadProofs();
 //   };
 
-
 const approveProof = async (p) => {
   try {
-
-    // update proof status
-    await updateDoc(doc(db, "ProofRequests", id), {
+    // Update proof status
+    await updateDoc(doc(db, "ProofRequests", p.id), {
       status: "approved"
     });
 
-    await updateDoc(doc(db,"Notifications",notificationId),{
-  verified:true
-});
-
-await updateDoc(doc(db,"Notifications",notificationId),{
-  verified:true
-});
-
-
-    // send notification
+    // Send notification to student
     await addDoc(collection(db, "Notifications"), {
       receiverRole: "student",
       receiverId: p.studentId,
-      // proofName: p.proofName || "Proof",
-       purpose: p.purpose,
-      description: "Your proof has been approved",
+      proofId: p.id,
+      purpose: p.purpose,
+      description: "Your proof has been approved ✅",
       status: "approved",
       seen: false,
-       createdAt: serverTimestamp()
+      createdAt: serverTimestamp()
     });
 
-    loadProofs();
-
+    loadProofs(); // Refresh the list
   } catch (err) {
     console.error("Approve error:", err);
   }
 };
 
 
-//   const rejectProof = async p => {
-//     if (!reason[p.id]) {
-//       alert("Enter reject reason");
-//       return;
-//     }
-
-//   await addDoc(collection(db, "Notifications"), {
-//   receiverRole: "student",
-//   receiverId: proof.studentId,
-//   proofName: proof.proofName,
-//   description: "Your proof was rejected",
-//   status: "rejected",
-//   rejectReason: reason,
-//   seen: false
-// });
-
-//     loadProofs();
-//   };
-
-
 
 const rejectProof = async (p) => {
   try {
-
-    if (!reason[p.id]) {
-      setMsgPopup("Enter reject reason");
+    if (!reason[p.id] || reason[p.id].trim() === "") {
+      setMsgPopup("Enter rejection reason");
       return;
     }
 
+    // Update proof status & reject reason
     await updateDoc(doc(db, "ProofRequests", p.id), {
       status: "rejected",
       rejectReason: reason[p.id]
     });
 
+    // Send notification to student
     await addDoc(collection(db, "Notifications"), {
       receiverRole: "student",
       receiverId: p.studentId,
-      // proofName: p.proofName || "Proof",
-       purpose: p.purpose,
-      description: "Your proof was rejected",
+      proofId: p.id,
+      purpose: p.purpose,
+      description: "Your proof was rejected ❌",
       status: "rejected",
       rejectReason: reason[p.id],
       seen: false,
-       createdAt: serverTimestamp()
+      createdAt: serverTimestamp()
     });
 
-    loadProofs();
-
+    loadProofs(); // Refresh the list
   } catch (err) {
     console.error("Reject error:", err);
   }
 };
-
 
   const formatDate = (date) => {
   if (!date) return "N/A";
   return new Date(date).toLocaleDateString();
 };
 
-// const applyFilter = () => {
-//   let filtered = allProofs;
 
-//   if (filters.studentName) {
-//     filtered = filtered.filter(p =>
-//       p.studentName?.toLowerCase().includes(filters.studentName.toLowerCase())
-//     );
-//   }
-
-//   if (filters.category) {
-//     filtered = filtered.filter(p =>
-//       p.activityHead === filters.category
-//     );
-//   }
-//   if (filters.date) {
-//     filtered = filtered.filter(p =>
-//       p.dutyDate === filters.date
-//     );
-//   }
-
-//   setProofs(filtered);
-// };
 const applyFilter = () => {
   let filtered = allProofs;
 
@@ -627,6 +573,11 @@ const openConfirm = (type, action) => {
       {p.status === "rejected" && p.rejectReason && (
         <p
           style={{
+            position: "relative",
+            
+            top: "50%",
+           left: "50%",
+           transform: "translate(-50%, -50%)",
             color: "#b91c1c",
             background: "#fee2e2",
             padding: 8,
@@ -681,28 +632,6 @@ const openConfirm = (type, action) => {
         
 
 
-{/* <button
-  onClick={() => {
-    if (!reason[p.id] || reason[p.id].trim() === "") {
-      alert("Please enter a rejection reason first.");
-      return;
-    }
-
-    openConfirm("reject", () => rejectProof(p));
-  }}
-  style={{
-    background: "#dc2626",
-    color: "#fff",
-    border: "none",
-    padding: "8px 14px",
-    borderRadius: 6,
-    cursor: "pointer",
-    fontWeight: 600
-  }}
->
-  Reject
-</button> */}
-
 <button
   onClick={() => {
     if (!reason[p.id] || reason[p.id].trim() === "") {
@@ -736,13 +665,7 @@ const openConfirm = (type, action) => {
 
 
 
-      {/* {selectedProof && selectedProof.purpose === "Activity Point" && (
-        <FacultyAddActivityPoints
-          proof={selectedProof}
-          onClose={() => setSelectedProof(null)}
-          onDone={loadProofs}
-        />
-      )} */}
+    
       {selectedProof && (
   <FacultyAddActivityPoints
     proof={selectedProof}
@@ -782,8 +705,8 @@ const openConfirm = (type, action) => {
 
       <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
         <button
-          onClick={() => {
-            if (confirmAction) confirmAction();
+          onClick={async () => {
+            if (confirmAction) await confirmAction();
             setConfirmOpen(false);
           }}
           style={{

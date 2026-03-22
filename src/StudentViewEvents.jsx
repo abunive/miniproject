@@ -208,7 +208,7 @@ const toggleLike = async (eventId) => {
   onClick={() => toggleLike(e.id)}
   className={`like-btn ${likedEvents[e.id] ? "liked" : ""}`}
 >
-  👍 {likedEvents[e.id] ? 1 : 0}
+  <i className="fas fa-heart"></i> {likedEvents[e.id] ? 1 : 0}
 </button>
 
             </div>

@@ -281,7 +281,7 @@ usersSnap.forEach(async (userDoc) => {
       </div>
 <div className="background" style={{background: ""}}>
       <div 
-  className="full-container" 
+  className=""
   
 >
       {/* CONTENT */}
@@ -331,7 +331,7 @@ usersSnap.forEach(async (userDoc) => {
         type="text"
         placeholder="Enter event ID"
         value={newEvent.eventid || ""}
-        onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })}
+        onChange={e => setNewEvent({ ...newEvent, eventid: e.target.value })} style={{color:" grey"}}
       />
     </div>
 
@@ -339,7 +339,7 @@ usersSnap.forEach(async (userDoc) => {
       <label>Event Type</label>
       <select
         value={newEvent.title || ""}
-        onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
+        onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}style={{color:" grey"}}
       >
         <option value="">Select Event Type</option>
         <option value="Arts">Arts</option>
@@ -353,7 +353,7 @@ usersSnap.forEach(async (userDoc) => {
       <input
         type="date"
         value={newEvent.date || ""}
-        onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
+        onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}style={{color:" grey"}}
       />
     </div>
 
@@ -363,7 +363,7 @@ usersSnap.forEach(async (userDoc) => {
         type="text"
         placeholder="Paste image URL"
         value={newEvent.posterURL || ""}
-        onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}
+        onChange={e => setNewEvent({ ...newEvent, posterURL: e.target.value })}style={{color:" grey"}}
       />
     </div>
 
@@ -372,17 +372,33 @@ usersSnap.forEach(async (userDoc) => {
       <textarea
         placeholder="Write event details..."
         value={newEvent.description || ""}
-        onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
+        onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}style={{color:" grey"}}
       />
     </div>
 
     <div className="button-group">
-  <button className="btn primary" onClick={createEvent}>
-    Create Event
-  </button>
-  <button className="btn secondary" onClick={() => setShowAddEvent(false)}>
-    Cancel
-  </button>
+      <button className="btn primary" onClick={createEvent}>
+        Create Event
+      </button>
+      <button
+        className="btn secondary"
+        onClick={() => {
+          setShowAddEvent(false); // ✅ Hides the form
+          setNewEvent({
+            uid: "",
+            eventid: "",
+            title: "",
+            date: "",
+            description: "",
+            posterURL: "",
+            status: "pending"
+          }); // reset fields
+          setPosterFile(null);
+          setPosterURL("");
+        }}
+      >
+        Cancel
+      </button>
 </div>
 
   </div>

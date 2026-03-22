@@ -672,7 +672,8 @@ label span {
   justify-content: center;
 }
 
-.confirm-btn {
+.confirm-btn
+ .cancel-btn {
   padding: 8px 16px;
   background: #2563eb;
   color: #fff;
@@ -680,11 +681,105 @@ label span {
   border-radius: 8px;
   cursor: pointer;
 }
+/* ......................confirmation button.......................... */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
 
-.cancel-btn {
-  padding: 8px 16px;
-  background: #f3f4f6;
-  border: 1px solid #ccc;
+.modal-box {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-text {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;   /* center buttons */
+  gap: 15px;                 /* space between buttons */
+  margin-top: 20px;
+}
+
+/* Confirm Button */
+.confirm-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
   border-radius: 8px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(34,197,94,0.4);
+}
+
+/* Cancel Button */
+.cancel-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.confirm-btn,
+.cancel-btn {
+  min-width: 120px;   /* equal width */
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  width: 100%;
 }
