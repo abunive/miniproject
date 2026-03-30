@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #101e3e;
+  background: url("C:\Users\Aswathi\pre\src\ktu image.jpg") no-repeat center center/cover;
 }
 
 .login-page {

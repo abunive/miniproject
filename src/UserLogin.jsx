@@ -54,7 +54,7 @@ const handleLogin = async () => {
 
 
   return (
-    <div className="login-page">
+    <div className="login-page " style={{backgroundImage:"https://www.ktuqbank.com/p/apj-ktu-university.html"}}>
       <h1 className="title">KTU Activity Point Management System</h1>
 
       <div className="login-card">
