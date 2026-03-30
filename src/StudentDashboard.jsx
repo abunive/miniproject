@@ -108,7 +108,10 @@ useEffect(() => {
     {/* SIDEBAR */}
     <div className="sidebar">
       <h3 className="logo">Student Panel</h3>
-      
+       {/* 👇 Student Details */}
+  <div className="student-info">
+    <p><b> <i className="fas fa-user"></i>Hello {studentName}</b></p>
+    </div>
 
       <button
        className={activeTab === "dashboard" ? "active" : ""}onClick={() => setActiveTab("dashboard")}>
