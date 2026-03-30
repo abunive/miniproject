@@ -61,32 +61,31 @@
 // }
 
 // export default App;
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AdminDashboard from "./AdminDashboard";
-import StudentDashboard from "./StudentDashboard";
-import FacultyDashboard from "./FacultyDashboard";
-import OrganizerDashboard from "./OrganizerDashboard";
-import FacultyNotifications from "./FacultyNotifications";
-import StudentNotifications from "./StudentNotifications";
+import { Routes, Route } from "react-router-dom";
+// import AdminDashboard from "./AdminDashboard";
+// import StudentDashboard from "./StudentDashboard";
+// import FacultyDashboard from "./FacultyDashboard";
+// import OrganizerDashboard from "./OrganizerDashboard";
+// import FacultyNotifications from "./FacultyNotifications";
+// import StudentNotifications from "./StudentNotifications";
 import UserLogin from "./UserLogin";
 import AdminLogin from "./AdminLogin";
 import "./login.css";
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
+         <Route path="/" element={<UserLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/user-login" element={<UserLogin />} />
 
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        {/* <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
         <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
         <Route path="/faculty-notifications" element={<FacultyNotifications />} />
-        <Route path="/student-notifications" element={<StudentNotifications />} />
+        <Route path="/student-notifications" element={<StudentNotifications />} /> */}
       </Routes>
-    </BrowserRouter>
   );
 }
 
