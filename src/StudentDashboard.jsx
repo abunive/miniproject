@@ -108,6 +108,7 @@ useEffect(() => {
     {/* SIDEBAR */}
     <div className="sidebar">
       <h3 className="logo">Student Panel</h3>
+      
 
       <button
        className={activeTab === "dashboard" ? "active" : ""}onClick={() => setActiveTab("dashboard")}>
@@ -128,12 +129,12 @@ useEffect(() => {
         <i className="fas fa-upload"></i> Upload Proof
       </button>
 
-      <button
+      {/* <button
         className={activeTab === "notifications" ? "active" : ""}
         onClick={() => setActiveTab("notifications")}
       >
         <i className="fas fa-bell"></i> Notifications
-      </button>
+      </button> */}
 
       <div className="spacer"></div>
       <hr />
